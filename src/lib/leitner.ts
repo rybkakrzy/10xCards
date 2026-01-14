@@ -4,22 +4,24 @@ import type { LeitnerBox } from '@/types';
 export const REVIEW_INTERVALS = {
   BOX_1_TO_2: 24 * 60 * 60 * 1000, // 1 day in milliseconds
   BOX_2_TO_3: 3 * 24 * 60 * 60 * 1000, // 3 days in milliseconds
-  BOX_3: 3 * 24 * 60 * 60 * 1000, // 3 days in milliseconds
+  BOX_3_TO_4: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
+  BOX_4_TO_5: 14 * 24 * 60 * 60 * 1000, // 14 days in milliseconds
+  BOX_5: 30 * 24 * 60 * 60 * 1000, // 30 days in milliseconds
 } as const;
 
 export interface LeitnerUpdateResult {
-  leitner_box: LeitnerBox;
+  leitner_box: 1 | 2 | 3 | 4 | 5;
   review_due_at: Date;
 }
 
 /**
  * Calculate next review date and box based on current box and result
- * @param currentBox Current Leitner box (1, 2, or 3)
+ * @param currentBox Current Leitner box (1, 2, 3, 4, or 5)
  * @param isCorrect Whether the user answered correctly
  * @returns Updated box number and review date
  */
 export function calculateNextReview(
-  currentBox: LeitnerBox,
+  currentBox: LeitnerBox | number,
   isCorrect: boolean
 ): LeitnerUpdateResult {
   const now = new Date();
@@ -32,7 +34,7 @@ export function calculateNextReview(
     };
   }
 
-  // If answer is correct, move to next box (or stay in box 3)
+  // If answer is correct, move to next box (or stay in box 5)
   switch (currentBox) {
     case 1:
       // Move from box 1 to box 2, review in 1 day
@@ -49,10 +51,24 @@ export function calculateNextReview(
       };
 
     case 3:
-      // Stay in box 3, review in 3 days
+      // Move from box 3 to box 4, review in 7 days
       return {
-        leitner_box: 3,
-        review_due_at: new Date(now.getTime() + REVIEW_INTERVALS.BOX_3),
+        leitner_box: 4,
+        review_due_at: new Date(now.getTime() + REVIEW_INTERVALS.BOX_3_TO_4),
+      };
+
+    case 4:
+      // Move from box 4 to box 5, review in 14 days
+      return {
+        leitner_box: 5,
+        review_due_at: new Date(now.getTime() + REVIEW_INTERVALS.BOX_4_TO_5),
+      };
+
+    case 5:
+      // Stay in box 5, review in 30 days
+      return {
+        leitner_box: 5,
+        review_due_at: new Date(now.getTime() + REVIEW_INTERVALS.BOX_5),
       };
 
     default:
