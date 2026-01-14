@@ -1,43 +1,63 @@
 import { defineMiddleware } from 'astro:middleware';
 import { createServerClient } from '@/db/supabase';
 
+const publicRoutes = ['/', '/login', '/register'];
+const protectedApiRoutes = ['/api/flashcards', '/api/review', '/api/profile'];
+
 export const onRequest = defineMiddleware(async (context, next) => {
-  // Public routes that don't require authentication
-  const publicRoutes = ['/', '/login', '/register', '/api/auth/login', '/api/auth/register'];
+  // Pobierz tokeny z cookies
+  const accessToken = context.cookies.get('sb-access-token');
+  const refreshToken = context.cookies.get('sb-refresh-token');
 
-  const isPublicRoute = publicRoutes.some((route) => context.url.pathname === route);
+  // Jeśli są tokeny, spróbuj odzyskać sesję
+  if (accessToken && refreshToken) {
+    try {
+      const supabase = createServerClient(accessToken.value);
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
 
-  // Get access token from cookies
-  const accessToken = context.cookies.get('sb-access-token')?.value;
-
-  if (accessToken) {
-    // Verify token with Supabase
-    const supabase = createServerClient(accessToken);
-    const {
-      data: { user },
-      error,
-    } = await supabase.auth.getUser();
-
-    if (!error && user) {
-      // Store user in locals for use in API routes and pages
-      context.locals.user = {
-        id: user.id,
-        email: user.email || '',
-      };
-      context.locals.accessToken = accessToken;
+      if (user) {
+        // Zapisz dane użytkownika w locals
+        context.locals.user = {
+          id: user.id,
+          email: user.email || '',
+        };
+        context.locals.accessToken = accessToken.value;
+      }
+    } catch (error) {
+      console.error('Error verifying session:', error);
+      // Wyczyść nieprawidłowe tokeny
+      context.cookies.delete('sb-access-token', { path: '/' });
+      context.cookies.delete('sb-refresh-token', { path: '/' });
     }
   }
 
-  // Redirect to login if accessing protected route without auth
-  if (!isPublicRoute && !context.locals.user) {
+  const isPublicRoute = publicRoutes.includes(context.url.pathname);
+  const isProtectedApiRoute = protectedApiRoutes.some((route) =>
+    context.url.pathname.startsWith(route)
+  );
+
+  // Przekieruj do logowania jeśli próba dostępu do chronionej strony bez autoryzacji
+  if (!isPublicRoute && !context.locals.user && !context.url.pathname.startsWith('/api/')) {
     return context.redirect('/login');
   }
 
-  // Redirect to dashboard if accessing auth pages while logged in
+  // Zwróć 401 dla nieautoryzowanych zapytań API
+  if (isProtectedApiRoute && !context.locals.user) {
+    return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+      status: 401,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
+  // Przekieruj do dashboardu jeśli użytkownik zalogowany próbuje dostać się do login/register
   if ((context.url.pathname === '/login' || context.url.pathname === '/register') && context.locals.user) {
     return context.redirect('/dashboard');
   }
 
   return next();
 });
+
+
 

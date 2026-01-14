@@ -26,6 +26,10 @@ build/
 supabase/.branches/
 supabase/.temp/
 
+# Template reference (do not commit)
+template-reference/
+tests/
+
 # IDE and editor files
 .vscode/
 .idea/

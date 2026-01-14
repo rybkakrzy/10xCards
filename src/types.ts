@@ -199,7 +199,7 @@ export interface LearningSessionState {
 
 export type LanguageLevel = 'A2' | 'B1' | 'B2';
 
-export type LeitnerBox = 1 | 2 | 3;
+export type LeitnerBox = 1 | 2 | 3 | 4 | 5;
 
 export type PartOfSpeech =
   | 'rzeczownik'
@@ -219,7 +219,7 @@ export type PartOfSpeech =
 
 export const LANGUAGE_LEVELS: LanguageLevel[] = ['A2', 'B1', 'B2'];
 
-export const LEITNER_BOXES: LeitnerBox[] = [1, 2, 3];
+export const LEITNER_BOXES: LeitnerBox[] = [1, 2, 3, 4, 5];
 
 export const PARTS_OF_SPEECH: PartOfSpeech[] = [
   'rzeczownik',
