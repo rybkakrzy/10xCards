@@ -1,0 +1,228 @@
+---
+import Layout from '@/layouts/Layout.astro';
+---
+
+<Layout title="Nauka - 10xCards">
+  <div class="min-h-screen bg-gray-50">
+    <header class="bg-white shadow">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <div class="flex justify-between items-center">
+          <h1 class="text-2xl font-bold text-gray-900">Sesja nauki</h1>
+          <a href="/dashboard" class="text-indigo-600 hover:text-indigo-700">← Zakończ</a>
+        </div>
+      </div>
+    </header>
+
+    <main class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <!-- Loading State -->
+      <div id="loading" class="bg-white rounded-lg shadow p-8 text-center">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
+        <p class="text-gray-600">Ładowanie fiszek...</p>
+      </div>
+
+      <!-- No Flashcards -->
+      <div id="no-flashcards" class="hidden bg-white rounded-lg shadow p-8 text-center">
+        <p class="text-xl text-gray-600 mb-4">🎉 Nie masz fiszek do powtórki!</p>
+        <p class="text-gray-500 mb-6">Wróć później lub dodaj nowe fiszki.</p>
+        <a
+          href="/dashboard"
+          class="inline-block px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-md"
+        >
+          Wróć do dashboardu
+        </a>
+      </div>
+
+      <!-- Flashcard Display -->
+      <div id="flashcard-display" class="hidden">
+        <!-- Progress -->
+        <div class="mb-6">
+          <div class="flex justify-between text-sm text-gray-600 mb-2">
+            <span>Postęp</span>
+            <span id="progress-text">0 / 0</span>
+          </div>
+          <div class="w-full bg-gray-200 rounded-full h-2">
+            <div id="progress-bar" class="bg-indigo-600 h-2 rounded-full transition-all" style="width: 0%"></div>
+          </div>
+        </div>
+
+        <!-- Card -->
+        <div class="bg-white rounded-lg shadow-xl p-8 mb-6">
+          <div id="card-front" class="text-center">
+            <p class="text-sm text-gray-500 mb-4">Przód karty</p>
+            <p id="front-text" class="text-3xl font-bold text-gray-900 mb-4"></p>
+            <p id="part-of-speech" class="text-sm text-gray-500 mb-8"></p>
+            <button
+              id="show-answer-btn"
+              class="px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-md"
+            >
+              Pokaż odpowiedź
+            </button>
+          </div>
+
+          <div id="card-back" class="hidden text-center">
+            <p class="text-sm text-gray-500 mb-2">Przód</p>
+            <p class="text-2xl font-bold text-gray-900 mb-4" id="front-text-back"></p>
+            <hr class="my-4">
+            <p class="text-sm text-gray-500 mb-2">Tył</p>
+            <p class="text-3xl font-bold text-indigo-600 mb-8" id="back-text"></p>
+          </div>
+        </div>
+
+        <!-- Answer Buttons -->
+        <div id="answer-buttons" class="hidden grid grid-cols-2 gap-4">
+          <button
+            id="incorrect-btn"
+            class="py-4 px-6 bg-red-500 hover:bg-red-600 text-white font-medium rounded-lg text-lg"
+          >
+            ❌ Nie pamiętam
+          </button>
+          <button
+            id="correct-btn"
+            class="py-4 px-6 bg-green-500 hover:bg-green-600 text-white font-medium rounded-lg text-lg"
+          >
+            ✅ Pamiętam
+          </button>
+        </div>
+      </div>
+
+      <!-- Completion -->
+      <div id="completion" class="hidden bg-white rounded-lg shadow p-8 text-center">
+        <p class="text-4xl mb-4">🎉</p>
+        <p class="text-2xl font-bold text-gray-900 mb-4">Świetna robota!</p>
+        <p class="text-gray-600 mb-6">Ukończyłeś wszystkie fiszki do powtórki.</p>
+        <div class="grid grid-cols-2 gap-4 mb-6">
+          <div class="bg-green-50 p-4 rounded-lg">
+            <p class="text-sm text-gray-600">Poprawne</p>
+            <p id="correct-count" class="text-3xl font-bold text-green-600">0</p>
+          </div>
+          <div class="bg-red-50 p-4 rounded-lg">
+            <p class="text-sm text-gray-600">Błędne</p>
+            <p id="incorrect-count" class="text-3xl font-bold text-red-600">0</p>
+          </div>
+        </div>
+        <a
+          href="/dashboard"
+          class="inline-block px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-md"
+        >
+          Wróć do dashboardu
+        </a>
+      </div>
+    </main>
+  </div>
+</Layout>
+
+<script>
+  let flashcards: any[] = [];
+  let currentIndex = 0;
+  let correctCount = 0;
+  let incorrectCount = 0;
+  let showingAnswer = false;
+
+  const loading = document.getElementById('loading')!;
+  const noFlashcards = document.getElementById('no-flashcards')!;
+  const flashcardDisplay = document.getElementById('flashcard-display')!;
+  const completion = document.getElementById('completion')!;
+  const cardFront = document.getElementById('card-front')!;
+  const cardBack = document.getElementById('card-back')!;
+  const answerButtons = document.getElementById('answer-buttons')!;
+
+  async function loadFlashcards() {
+    try {
+      const response = await fetch('/api/review');
+      const data = await response.json();
+
+      flashcards = data.flashcards || [];
+      
+      loading.classList.add('hidden');
+
+      if (flashcards.length === 0) {
+        noFlashcards.classList.remove('hidden');
+      } else {
+        flashcardDisplay.classList.remove('hidden');
+        showFlashcard();
+      }
+    } catch (error) {
+      console.error('Failed to load flashcards:', error);
+      alert('Błąd podczas ładowania fiszek');
+    }
+  }
+
+  function showFlashcard() {
+    if (currentIndex >= flashcards.length) {
+      showCompletion();
+      return;
+    }
+
+    const card = flashcards[currentIndex];
+    showingAnswer = false;
+
+    document.getElementById('front-text')!.textContent = card.front;
+    document.getElementById('front-text-back')!.textContent = card.front;
+    document.getElementById('back-text')!.textContent = card.back;
+    document.getElementById('part-of-speech')!.textContent = card.part_of_speech || '';
+
+    cardFront.classList.remove('hidden');
+    cardBack.classList.add('hidden');
+    answerButtons.classList.add('hidden');
+
+    updateProgress();
+  }
+
+  function showAnswer() {
+    showingAnswer = true;
+    cardFront.classList.add('hidden');
+    cardBack.classList.remove('hidden');
+    answerButtons.classList.remove('hidden');
+  }
+
+  async function submitAnswer(result: 'correct' | 'incorrect') {
+    const card = flashcards[currentIndex];
+
+    try {
+      await fetch(`/api/review/${card.id}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ result }),
+      });
+
+      if (result === 'correct') {
+        correctCount++;
+      } else {
+        incorrectCount++;
+      }
+
+      currentIndex++;
+      showFlashcard();
+    } catch (error) {
+      console.error('Failed to submit answer:', error);
+      alert('Błąd podczas zapisywania odpowiedzi');
+    }
+  }
+
+  function updateProgress() {
+    const total = flashcards.length;
+    const current = currentIndex + 1;
+    const percentage = (currentIndex / total) * 100;
+
+    document.getElementById('progress-text')!.textContent = `${currentIndex} / ${total}`;
+    (document.getElementById('progress-bar') as HTMLElement).style.width = `${percentage}%`;
+  }
+
+  function showCompletion() {
+    flashcardDisplay.classList.add('hidden');
+    completion.classList.remove('hidden');
+    document.getElementById('correct-count')!.textContent = correctCount.toString();
+    document.getElementById('incorrect-count')!.textContent = incorrectCount.toString();
+  }
+
+  // Event listeners
+  document.getElementById('show-answer-btn')?.addEventListener('click', showAnswer);
+  document.getElementById('correct-btn')?.addEventListener('click', () => submitAnswer('correct'));
+  document.getElementById('incorrect-btn')?.addEventListener('click', () => submitAnswer('incorrect'));
+
+  // Load flashcards on page load
+  loadFlashcards();
+</script>
+
