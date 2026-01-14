@@ -1,14 +1,25 @@
 # AI Rules for 10xCards
 
-{project-description}
+## Project Description
+
+10xCards is a web application for learning Spanish through AI-generated flashcards and spaced repetition (Leitner system).
+
+**Core Features:**
+- AI-powered flashcard generation from Spanish text using OpenRouter API
+- Manual flashcard creation and management
+- Spaced repetition learning system (3-box Leitner algorithm)
+- User authentication via Supabase
+- Spanish → Polish flashcards with parts of speech
 
 ## Tech Stack
 
-- Astro 5
+- Astro 5 (SSR mode)
 - TypeScript 5
 - React 19
 - Tailwind 4
 - Shadcn/ui
+- Supabase (PostgreSQL + Auth)
+- OpenRouter.ai (LLM API)
 
 ## Project Structure
 
