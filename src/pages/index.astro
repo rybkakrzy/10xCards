@@ -1,0 +1,88 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="10xCards - Nauka Hiszpańskiego">
+  <div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
+    <div class="container mx-auto px-4 py-16">
+      <div class="max-w-4xl mx-auto text-center">
+        <h1 class="text-5xl font-bold mb-6 bg-gradient-to-r from-blue-600 to-indigo-600 text-transparent bg-clip-text">
+          10xCards
+        </h1>
+        <p class="text-2xl mb-4 text-gray-700 dark:text-gray-300">
+          Nauka języka hiszpańskiego z AI
+        </p>
+        <p class="text-lg mb-12 text-gray-600 dark:text-gray-400">
+          Generuj fiszki automatycznie z tekstu hiszpańskiego i ucz się z systemem powtórek Leitnera
+        </p>
+
+        <div class="grid md:grid-cols-3 gap-8 mb-12">
+          <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
+            <div class="text-4xl mb-4">🤖</div>
+            <h3 class="text-xl font-semibold mb-2">AI Generator</h3>
+            <p class="text-gray-600 dark:text-gray-400">
+              Wklej tekst hiszpański, wybierz poziom i pozwól AI wygenerować fiszki
+            </p>
+          </div>
+
+          <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
+            <div class="text-4xl mb-4">📚</div>
+            <h3 class="text-xl font-semibold mb-2">Spaced Repetition</h3>
+            <p class="text-gray-600 dark:text-gray-400">
+              System 3 pudełek Leitnera dla efektywnej nauki
+            </p>
+          </div>
+
+          <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
+            <div class="text-4xl mb-4">✏️</div>
+            <h3 class="text-xl font-semibold mb-2">Własne Fiszki</h3>
+            <p class="text-gray-600 dark:text-gray-400">
+              Twórz i edytuj fiszki ręcznie według własnych potrzeb
+            </p>
+          </div>
+        </div>
+
+        <div class="space-x-4">
+          <a
+            href="/register"
+            class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-3 rounded-lg transition-colors"
+          >
+            Zacznij naukę
+          </a>
+          <a
+            href="/login"
+            class="inline-block bg-white hover:bg-gray-50 text-blue-600 font-semibold px-8 py-3 rounded-lg border-2 border-blue-600 transition-colors"
+          >
+            Zaloguj się
+          </a>
+        </div>
+
+        <div class="mt-16 text-left max-w-2xl mx-auto bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg">
+          <h2 class="text-2xl font-bold mb-4">Jak to działa?</h2>
+          <ol class="space-y-3 text-gray-700 dark:text-gray-300">
+            <li class="flex items-start">
+              <span class="font-bold text-blue-600 mr-2">1.</span>
+              <span>Wklej tekst hiszpański (artykuł, opowiadanie, dialog)</span>
+            </li>
+            <li class="flex items-start">
+              <span class="font-bold text-blue-600 mr-2">2.</span>
+              <span>AI wybiera najtrudniejsze słowa i tworzy fiszki z tłumaczeniem</span>
+            </li>
+            <li class="flex items-start">
+              <span class="font-bold text-blue-600 mr-2">3.</span>
+              <span>Przejrzyj propozycje, edytuj lub odrzuć niechciane</span>
+            </li>
+            <li class="flex items-start">
+              <span class="font-bold text-blue-600 mr-2">4.</span>
+              <span>Zapisz fiszki i rozpocznij naukę z systemem powtórek</span>
+            </li>
+            <li class="flex items-start">
+              <span class="font-bold text-blue-600 mr-2">5.</span>
+              <span>Powtarzaj regularnie według algorytmu - efektywna nauka gwarantowana!</span>
+            </li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>
