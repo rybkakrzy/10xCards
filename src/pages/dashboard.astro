@@ -1,0 +1,127 @@
+---
+import Layout from '@/layouts/Layout.astro';
+
+// Check if user is authenticated (handled by middleware)
+const user = Astro.locals.user;
+---
+
+<Layout title="Dashboard - 10xCards">
+  <div class="min-h-screen bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+        <h1 class="text-2xl font-bold text-gray-900">10xCards</h1>
+        <div class="flex items-center gap-4">
+          <span class="text-sm text-gray-600">{user?.email}</span>
+          <button
+            id="logout-btn"
+            class="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md"
+          >
+            Wyloguj
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <!-- Stats -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="bg-white p-6 rounded-lg shadow">
+          <h3 class="text-sm font-medium text-gray-500">Wszystkie fiszki</h3>
+          <p id="total-count" class="text-3xl font-bold text-gray-900">0</p>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow">
+          <h3 class="text-sm font-medium text-gray-500">Do powtórki</h3>
+          <p id="review-count" class="text-3xl font-bold text-indigo-600">0</p>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow">
+          <h3 class="text-sm font-medium text-gray-500">Opanowane</h3>
+          <p id="mastered-count" class="text-3xl font-bold text-green-600">0</p>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <a
+          href="/learn"
+          class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-8 px-6 rounded-lg shadow-lg text-center text-xl transition-colors"
+        >
+          🎓 Ucz się teraz
+        </a>
+        <a
+          href="/generate"
+          class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-8 px-6 rounded-lg shadow-lg text-center text-xl transition-colors"
+        >
+          ✨ Generuj fiszki AI
+        </a>
+        <a
+          href="/flashcards"
+          class="bg-gray-600 hover:bg-gray-700 text-white font-medium py-8 px-6 rounded-lg shadow-lg text-center text-xl transition-colors"
+        >
+          📚 Zarządzaj fiszkami
+        </a>
+      </div>
+
+      <!-- Recent Activity -->
+      <div class="bg-white rounded-lg shadow p-6">
+        <h2 class="text-xl font-bold text-gray-900 mb-4">Ostatnia aktywność</h2>
+        <div id="recent-flashcards" class="space-y-3">
+          <p class="text-gray-500 text-center py-8">Ładowanie...</p>
+        </div>
+      </div>
+    </main>
+  </div>
+</Layout>
+
+<script>
+  // Logout handler
+  document.getElementById('logout-btn')?.addEventListener('click', async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+      window.location.href = '/';
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  });
+
+  // Load dashboard data
+  async function loadDashboard() {
+    try {
+      const [flashcardsRes, reviewRes] = await Promise.all([
+        fetch('/api/flashcards'),
+        fetch('/api/review'),
+      ]);
+
+      const flashcardsData = await flashcardsRes.json();
+      const reviewData = await reviewRes.json();
+
+      const totalCount = flashcardsData.flashcards?.length || 0;
+      const reviewCount = reviewData.count || 0;
+      const masteredCount = flashcardsData.flashcards?.filter((f: any) => f.leitner_box === 3).length || 0;
+
+      document.getElementById('total-count')!.textContent = totalCount.toString();
+      document.getElementById('review-count')!.textContent = reviewCount.toString();
+      document.getElementById('mastered-count')!.textContent = masteredCount.toString();
+
+      // Show recent flashcards
+      const recentContainer = document.getElementById('recent-flashcards')!;
+      if (flashcardsData.flashcards?.length > 0) {
+        const recent = flashcardsData.flashcards.slice(0, 5);
+        recentContainer.innerHTML = recent.map((card: any) => `
+          <div class="border-l-4 border-indigo-500 pl-4 py-2">
+            <p class="font-medium text-gray-900">${card.front}</p>
+            <p class="text-sm text-gray-600">${card.back}</p>
+          </div>
+        `).join('');
+      } else {
+        recentContainer.innerHTML = '<p class="text-gray-500 text-center py-8">Brak fiszek. Zacznij od wygenerowania lub dodania nowych!</p>';
+      }
+    } catch (error) {
+      console.error('Failed to load dashboard:', error);
+    }
+  }
+
+  loadDashboard();
+</script>
+

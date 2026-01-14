@@ -1,0 +1,238 @@
+---
+import Layout from '@/layouts/Layout.astro';
+---
+
+<Layout title="Moje fiszki - 10xCards">
+  <div class="min-h-screen bg-gray-50">
+    <header class="bg-white shadow">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <div class="flex justify-between items-center">
+          <h1 class="text-2xl font-bold text-gray-900">Moje fiszki</h1>
+          <a href="/dashboard" class="text-indigo-600 hover:text-indigo-700">← Powrót</a>
+        </div>
+      </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <!-- Add New Flashcard -->
+      <div class="bg-white rounded-lg shadow p-6 mb-8">
+        <h2 class="text-xl font-bold text-gray-900 mb-4">Dodaj nową fiszkę</h2>
+        <form id="add-form" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label for="front" class="block text-sm font-medium text-gray-700 mb-1">
+              Hiszpański
+            </label>
+            <input
+              id="front"
+              name="front"
+              type="text"
+              required
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              placeholder="np. el gato"
+            />
+          </div>
+          <div>
+            <label for="back" class="block text-sm font-medium text-gray-700 mb-1">
+              Polski
+            </label>
+            <input
+              id="back"
+              name="back"
+              type="text"
+              required
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              placeholder="np. kot (rzeczownik)"
+            />
+          </div>
+          <div class="flex items-end">
+            <button
+              type="submit"
+              class="w-full py-2 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-md"
+            >
+              Dodaj
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Filters -->
+      <div class="bg-white rounded-lg shadow p-4 mb-6">
+        <div class="flex flex-wrap gap-4">
+          <select id="filter-box" class="px-3 py-2 border border-gray-300 rounded-md">
+            <option value="">Wszystkie pudełka</option>
+            <option value="1">Pudełko 1 (nowe)</option>
+            <option value="2">Pudełko 2 (w nauce)</option>
+            <option value="3">Pudełko 3 (opanowane)</option>
+          </select>
+          <select id="filter-source" class="px-3 py-2 border border-gray-300 rounded-md">
+            <option value="">Wszystkie źródła</option>
+            <option value="ai">Wygenerowane AI</option>
+            <option value="manual">Dodane ręcznie</option>
+          </select>
+          <input
+            id="search"
+            type="text"
+            placeholder="Szukaj..."
+            class="px-3 py-2 border border-gray-300 rounded-md flex-1"
+          />
+        </div>
+      </div>
+
+      <!-- Flashcards List -->
+      <div id="loading" class="text-center py-8">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
+      </div>
+
+      <div id="flashcards-list" class="hidden grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      </div>
+
+      <div id="no-results" class="hidden text-center py-8 text-gray-500">
+        Brak fiszek do wyświetlenia
+      </div>
+    </main>
+  </div>
+</Layout>
+
+<script>
+  let allFlashcards: any[] = [];
+  let filteredFlashcards: any[] = [];
+
+  const loading = document.getElementById('loading')!;
+  const flashcardsList = document.getElementById('flashcards-list')!;
+  const noResults = document.getElementById('no-results')!;
+  const filterBox = document.getElementById('filter-box') as HTMLSelectElement;
+  const filterSource = document.getElementById('filter-source') as HTMLSelectElement;
+  const searchInput = document.getElementById('search') as HTMLInputElement;
+
+  async function loadFlashcards() {
+    try {
+      const response = await fetch('/api/flashcards');
+      const data = await response.json();
+      allFlashcards = data.flashcards || [];
+      filterFlashcards();
+    } catch (error) {
+      console.error('Failed to load flashcards:', error);
+    }
+  }
+
+  function filterFlashcards() {
+    filteredFlashcards = allFlashcards.filter(card => {
+      const boxMatch = !filterBox.value || card.leitner_box.toString() === filterBox.value;
+      const sourceMatch = !filterSource.value || 
+        (filterSource.value === 'ai' && card.ai_generated) ||
+        (filterSource.value === 'manual' && !card.ai_generated);
+      const searchMatch = !searchInput.value || 
+        card.front.toLowerCase().includes(searchInput.value.toLowerCase()) ||
+        card.back.toLowerCase().includes(searchInput.value.toLowerCase());
+      
+      return boxMatch && sourceMatch && searchMatch;
+    });
+
+    displayFlashcards();
+  }
+
+  function displayFlashcards() {
+    loading.classList.add('hidden');
+
+    if (filteredFlashcards.length === 0) {
+      flashcardsList.classList.add('hidden');
+      noResults.classList.remove('hidden');
+      return;
+    }
+
+    noResults.classList.add('hidden');
+    flashcardsList.classList.remove('hidden');
+
+    flashcardsList.innerHTML = filteredFlashcards.map(card => {
+      const boxColor = card.leitner_box === 1 ? 'red' : card.leitner_box === 2 ? 'yellow' : 'green';
+      return `
+        <div class="bg-white rounded-lg shadow p-6 border-l-4 border-${boxColor}-500">
+          <div class="flex justify-between items-start mb-3">
+            <span class="text-xs px-2 py-1 rounded bg-${boxColor}-100 text-${boxColor}-800">
+              Pudełko ${card.leitner_box}
+            </span>
+            <button 
+              onclick="deleteFlashcard('${card.id}')"
+              class="text-red-500 hover:text-red-700 text-sm"
+            >
+              ✕
+            </button>
+          </div>
+          <div class="mb-2">
+            <p class="text-sm text-gray-500">ES</p>
+            <p class="text-lg font-semibold text-gray-900">${card.front}</p>
+          </div>
+          <div class="mb-2">
+            <p class="text-sm text-gray-500">PL</p>
+            <p class="text-gray-700">${card.back}</p>
+          </div>
+          ${card.part_of_speech ? `<p class="text-xs text-gray-500">${card.part_of_speech}</p>` : ''}
+          <p class="text-xs text-gray-400 mt-2">
+            ${card.ai_generated ? '🤖 AI' : '✏️ Ręczne'}
+          </p>
+        </div>
+      `;
+    }).join('');
+  }
+
+  (window as any).deleteFlashcard = async function(id: string) {
+    if (!confirm('Czy na pewno chcesz usunąć tę fiszkę?')) return;
+
+    try {
+      const response = await fetch(`/api/flashcards/${id}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        allFlashcards = allFlashcards.filter(card => card.id !== id);
+        filterFlashcards();
+      } else {
+        alert('Błąd podczas usuwania fiszki');
+      }
+    } catch (error) {
+      console.error('Failed to delete flashcard:', error);
+      alert('Błąd podczas usuwania fiszki');
+    }
+  };
+
+  // Add new flashcard
+  document.getElementById('add-form')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const form = e.target as HTMLFormElement;
+    const formData = new FormData(form);
+    
+    try {
+      const response = await fetch('/api/flashcards', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          front: formData.get('front'),
+          back: formData.get('back'),
+          ai_generated: false,
+        }),
+      });
+
+      if (response.ok) {
+        form.reset();
+        await loadFlashcards();
+      } else {
+        alert('Błąd podczas dodawania fiszki');
+      }
+    } catch (error) {
+      console.error('Failed to add flashcard:', error);
+      alert('Błąd podczas dodawania fiszki');
+    }
+  });
+
+  // Filter listeners
+  filterBox.addEventListener('change', filterFlashcards);
+  filterSource.addEventListener('change', filterFlashcards);
+  searchInput.addEventListener('input', filterFlashcards);
+
+  // Load flashcards on page load
+  loadFlashcards();
+</script>
+
