@@ -59,7 +59,7 @@ export function useAiGeneration(): UseAiGenerationReturn {
     setError(null);
 
     try {
-      const response = await fetch('/api/generate', {
+      const response = await fetch('/api/ai/generate-suggestions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -102,7 +102,7 @@ export function useAiGeneration(): UseAiGenerationReturn {
       const flashcardsToImport = suggestions.map(s => ({
         front: s.front,
         back: s.back,
-        part_of_speech: s.tempPartOfSpeech || undefined,
+        part_of_speech: s.tempPartOfSpeech || null,
       }));
 
       const command: ImportFlashcardsCommand = {
@@ -113,7 +113,7 @@ export function useAiGeneration(): UseAiGenerationReturn {
         },
       };
 
-      const response = await fetch('/api/flashcards/bulk', {
+      const response = await fetch('/api/ai/import-flashcards', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -84,7 +84,7 @@ export function AiTab({ onImportSuccess, onError }: AiTabProps) {
             id="ai-text"
             value={text}
             onChange={(e) => setText(e.target.value)}
-            placeholder="Wklej tutaj tekst w języku hiszpańskim, który chcesz przekształcić w fiszki..."
+            placeholder="Wklej tutaj tekst w języku obcym, który chcesz przekształcić w fiszki..."
             className="min-h-[200px] resize-y"
             maxLength={maxCharacters}
             disabled={isGenerating}
@@ -115,10 +115,13 @@ export function AiTab({ onImportSuccess, onError }: AiTabProps) {
             value={level}
             onChange={(e) => setLevel(e.target.value as Extract<LanguageLevel, 'b1' | 'b2' | 'c1'>)}
             disabled={isGenerating}
-          >
+          > 
+            <option value="a1">A1 - Początkujący</option>
+            <option value="a2">A2 - Podstawowy</option>
             <option value="b1">B1 - Średnio zaawansowany niższy</option>
             <option value="b2">B2 - Średnio zaawansowany wyższy</option>
             <option value="c1">C1 - Zaawansowany</option>
+            <option value="c2">C2 - Biegły</option>
           </Select>
           <p className="text-xs text-muted-foreground">
             Wybierz poziom trudności generowanych fiszek

@@ -1,17 +1,19 @@
 import type { APIRoute } from 'astro';
-import { createServerClient } from '@/db/supabase';
 import type { CreateFlashcardRequest, CreateFlashcardResponse } from '@/types';
 
 export const POST: APIRoute = async ({ request, locals }) => {
-  try {
-    // Check authentication
-    if (!locals.user || !locals.accessToken) {
-      return new Response(
-        JSON.stringify({ error: 'Unauthorized' }),
-        { status: 401, headers: { 'Content-Type': 'application/json' } }
-      );
-    }
+  const { supabase } = locals;
 
+  // Check authentication
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError || !user) {
+    return new Response(
+      JSON.stringify({ error: 'Unauthorized' }),
+      { status: 401, headers: { 'Content-Type': 'application/json' } }
+    );
+  }
+
+  try {
     const body: CreateFlashcardRequest = await request.json();
 
     // Validate input
@@ -22,13 +24,11 @@ export const POST: APIRoute = async ({ request, locals }) => {
       );
     }
 
-    const supabase = createServerClient(locals.accessToken);
-
     // Insert flashcard
     const { data, error } = await supabase
       .from('flashcards')
       .insert({
-        user_id: locals.user.id,
+        user_id: user.id,
         front: body.front.trim(),
         back: body.back.trim(),
         part_of_speech: body.part_of_speech || null,
@@ -63,22 +63,23 @@ export const POST: APIRoute = async ({ request, locals }) => {
 };
 
 export const GET: APIRoute = async ({ locals }) => {
+  const { supabase } = locals;
+
+  // Check authentication
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError || !user) {
+    return new Response(
+      JSON.stringify({ error: 'Unauthorized' }),
+      { status: 401, headers: { 'Content-Type': 'application/json' } }
+    );
+  }
+
   try {
-    // Check authentication
-    if (!locals.user || !locals.accessToken) {
-      return new Response(
-        JSON.stringify({ error: 'Unauthorized' }),
-        { status: 401, headers: { 'Content-Type': 'application/json' } }
-      );
-    }
-
-    const supabase = createServerClient(locals.accessToken);
-
     // Get all user's flashcards
     const { data, error } = await supabase
       .from('flashcards')
       .select('*')
-      .eq('user_id', locals.user.id)
+      .eq('user_id', user.id)
       .order('created_at', { ascending: false });
 
     if (error) {

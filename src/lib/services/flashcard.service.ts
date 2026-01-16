@@ -223,5 +223,40 @@ export class FlashcardService {
       flashcards: data as Flashcard[],
     };
   }
+
+  /**
+   * Imports AI-generated flashcards with metrics tracking.
+   */
+  async importAiFlashcards(
+    supabase: SupabaseClient<Database>,
+    userId: string,
+    command: { flashcards: Array<{ front: string; back: string; part_of_speech?: string | null }>; metrics: { generatedCount: number; importedCount: number } },
+    languageLevel: string
+  ): Promise<{ message: string; importedCount: number }> {
+    const flashcardsToInsert: TablesInsert<'flashcards'>[] = command.flashcards.map((card) => ({
+      user_id: userId,
+      front: card.front.trim(),
+      back: card.back.trim(),
+      part_of_speech: card.part_of_speech || null,
+      ai_generated: true,
+      leitner_box: 1,
+      review_due_at: new Date().toISOString(),
+    }));
+
+    const { data, error } = await supabase
+      .from('flashcards')
+      .insert(flashcardsToInsert)
+      .select();
+
+    if (error) {
+      console.error('Error importing AI flashcards:', error);
+      throw new Error('Failed to import flashcards');
+    }
+
+    return {
+      message: 'Flashcards imported successfully',
+      importedCount: data.length,
+    };
+  }
 }
 

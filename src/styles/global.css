@@ -5,81 +5,81 @@
 
 :root {
   --radius: 0.625rem;
-  /* Spanish color palette - warm, Mediterranean tones */
-  --background: oklch(0.98 0.01 60);
+  /* Spanish flag colors - Red (#C60B1E) and Gold (#FFC400) */
+  --background: oklch(0.99 0 0);
   --foreground: oklch(0.2 0.02 30);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.2 0.02 30);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.2 0.02 30);
-  /* Primary: Spanish red/terracotta */
-  --primary: oklch(0.55 0.22 25);
+  /* Primary: Spanish Red */
+  --primary: oklch(0.48 0.24 27);
   --primary-foreground: oklch(0.99 0 0);
-  /* Secondary: Spanish gold/saffron */
-  --secondary: oklch(0.88 0.15 85);
-  --secondary-foreground: oklch(0.25 0.02 30);
-  --muted: oklch(0.95 0.01 60);
+  /* Secondary: Spanish Gold */
+  --secondary: oklch(0.88 0.16 85);
+  --secondary-foreground: oklch(0.2 0.02 30);
+  --muted: oklch(0.96 0.01 60);
   --muted-foreground: oklch(0.5 0.02 30);
-  /* Accent: warm terracotta */
-  --accent: oklch(0.92 0.08 45);
-  --accent-foreground: oklch(0.25 0.02 30);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.9 0.02 60);
-  --input: oklch(0.9 0.02 60);
-  --ring: oklch(0.55 0.22 25);
-  /* Charts with Spanish palette */
-  --chart-1: oklch(0.55 0.22 25);
-  --chart-2: oklch(0.75 0.18 85);
-  --chart-3: oklch(0.65 0.15 45);
-  --chart-4: oklch(0.7 0.12 60);
-  --chart-5: oklch(0.8 0.15 30);
-  --sidebar: oklch(0.96 0.01 60);
+  /* Accent: Spanish Gold */
+  --accent: oklch(0.88 0.16 85);
+  --accent-foreground: oklch(0.2 0.02 30);
+  --destructive: oklch(0.48 0.24 27);
+  --border: oklch(0.92 0.01 60);
+  --input: oklch(0.96 0.01 60);
+  --ring: oklch(0.48 0.24 27);
+  /* Charts with Spanish flag colors */
+  --chart-1: oklch(0.48 0.24 27);
+  --chart-2: oklch(0.88 0.16 85);
+  --chart-3: oklch(0.58 0.20 35);
+  --chart-4: oklch(0.78 0.14 75);
+  --chart-5: oklch(0.68 0.18 50);
+  --sidebar: oklch(0.98 0 0);
   --sidebar-foreground: oklch(0.2 0.02 30);
-  --sidebar-primary: oklch(0.55 0.22 25);
+  --sidebar-primary: oklch(0.48 0.24 27);
   --sidebar-primary-foreground: oklch(0.99 0 0);
-  --sidebar-accent: oklch(0.92 0.08 45);
-  --sidebar-accent-foreground: oklch(0.25 0.02 30);
-  --sidebar-border: oklch(0.9 0.02 60);
-  --sidebar-ring: oklch(0.55 0.22 25);
+  --sidebar-accent: oklch(0.88 0.16 85);
+  --sidebar-accent-foreground: oklch(0.2 0.02 30);
+  --sidebar-border: oklch(0.92 0.01 60);
+  --sidebar-ring: oklch(0.48 0.24 27);
 }
 
 .dark {
-  /* Dark mode with warm Spanish tones */
+  /* Dark mode with Spanish flag colors */
   --background: oklch(0.18 0.02 30);
   --foreground: oklch(0.95 0.01 60);
   --card: oklch(0.22 0.02 30);
   --card-foreground: oklch(0.95 0.01 60);
   --popover: oklch(0.22 0.02 30);
   --popover-foreground: oklch(0.95 0.01 60);
-  /* Primary: lighter Spanish red for dark mode */
-  --primary: oklch(0.65 0.2 25);
+  /* Primary: Spanish Red - brighter for dark mode */
+  --primary: oklch(0.58 0.24 27);
   --primary-foreground: oklch(0.99 0 0);
-  /* Secondary: golden saffron */
-  --secondary: oklch(0.75 0.15 85);
+  /* Secondary: Spanish Gold */
+  --secondary: oklch(0.88 0.16 85);
   --secondary-foreground: oklch(0.2 0.02 30);
   --muted: oklch(0.28 0.02 30);
   --muted-foreground: oklch(0.7 0.02 60);
-  /* Accent: warm terracotta */
-  --accent: oklch(0.4 0.08 45);
-  --accent-foreground: oklch(0.95 0.01 60);
-  --destructive: oklch(0.704 0.191 22.216);
+  /* Accent: Spanish Gold */
+  --accent: oklch(0.88 0.16 85);
+  --accent-foreground: oklch(0.2 0.02 30);
+  --destructive: oklch(0.58 0.24 27);
   --border: oklch(1 0 0 / 12%);
   --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.65 0.2 25);
-  /* Charts with Spanish palette for dark mode */
-  --chart-1: oklch(0.65 0.2 25);
-  --chart-2: oklch(0.8 0.15 85);
-  --chart-3: oklch(0.7 0.12 45);
-  --chart-4: oklch(0.75 0.1 60);
-  --chart-5: oklch(0.85 0.12 30);
+  --ring: oklch(0.58 0.24 27);
+  /* Charts with Spanish flag colors for dark mode */
+  --chart-1: oklch(0.58 0.24 27);
+  --chart-2: oklch(0.88 0.16 85);
+  --chart-3: oklch(0.68 0.20 35);
+  --chart-4: oklch(0.78 0.14 75);
+  --chart-5: oklch(0.73 0.18 50);
   --sidebar: oklch(0.22 0.02 30);
   --sidebar-foreground: oklch(0.95 0.01 60);
-  --sidebar-primary: oklch(0.65 0.2 25);
+  --sidebar-primary: oklch(0.58 0.24 27);
   --sidebar-primary-foreground: oklch(0.99 0 0);
-  --sidebar-accent: oklch(0.4 0.08 45);
-  --sidebar-accent-foreground: oklch(0.95 0.01 60);
+  --sidebar-accent: oklch(0.88 0.16 85);
+  --sidebar-accent-foreground: oklch(0.2 0.02 30);
   --sidebar-border: oklch(1 0 0 / 12%);
-  --sidebar-ring: oklch(0.65 0.2 25);
+  --sidebar-ring: oklch(0.58 0.24 27);
 }
 
 @theme inline {

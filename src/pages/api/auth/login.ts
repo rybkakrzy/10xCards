@@ -1,80 +1,101 @@
 import type { APIRoute } from 'astro';
-import { supabase } from '@/db/supabase';
-import type { LoginRequest, AuthResponse } from '@/types';
+import { z } from 'zod';
 
-export const POST: APIRoute = async ({ request, cookies }) => {
+export const prerender = false;
+
+/**
+ * Schema for login request validation.
+ * Ensures email format and minimum password length.
+ */
+const loginSchema = z.object({
+  email: z
+    .string({ required_error: 'Email jest wymagany.' })
+    .email('Nieprawidłowy format adresu email.'),
+  password: z
+    .string({ required_error: 'Hasło jest wymagane.' })
+    .min(6, 'Hasło musi mieć minimum 6 znaków.'),
+});
+
+/**
+ * POST /api/auth/login
+ * 
+ * Handles user authentication via email and password.
+ * Validates input, authenticates with Supabase, and sets secure session cookies.
+ * 
+ * Request body:
+ * - email: string
+ * - password: string
+ * 
+ * Success (200): { user: User }
+ * Validation Error (422): { message: string, errors: ZodError[] }
+ * Auth Error (400): { error: string }
+ * Server Error (500): { error: string }
+ */
+export const POST: APIRoute = async ({ request, locals }) => {
+  const { supabase } = locals;
+
+  // Parse and validate request body
+  let body;
   try {
-    const body: LoginRequest = await request.json();
-
-    // Validate input
-    if (!body.email || !body.password) {
-      return new Response(
-        JSON.stringify({ error: 'Email and password are required' }),
-        { status: 400, headers: { 'Content-Type': 'application/json' } }
-      );
-    }
-
-    // Attempt login
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email: body.email,
-      password: body.password,
-    });
-
-    if (error) {
-      return new Response(
-        JSON.stringify({ error: error.message }),
-        { status: 401, headers: { 'Content-Type': 'application/json' } }
-      );
-    }
-
-    if (!data.session || !data.user) {
-      return new Response(
-        JSON.stringify({ error: 'Login failed' }),
-        { status: 401, headers: { 'Content-Type': 'application/json' } }
-      );
-    }
-
-    // Set session cookies
-    cookies.set('sb-access-token', data.session.access_token, {
-      path: '/',
-      httpOnly: true,
-      secure: import.meta.env.PROD,
-      sameSite: 'lax',
-      maxAge: 60 * 60 * 24 * 7, // 7 days
-    });
-
-    cookies.set('sb-refresh-token', data.session.refresh_token, {
-      path: '/',
-      httpOnly: true,
-      secure: import.meta.env.PROD,
-      sameSite: 'lax',
-      maxAge: 60 * 60 * 24 * 30, // 30 days
-    });
-
-    const response: AuthResponse = {
-      user: {
-        id: data.user.id,
-        email: data.user.email || '',
-        created_at: data.user.created_at,
-        updated_at: data.user.updated_at || data.user.created_at,
-      },
-      session: {
-        access_token: data.session.access_token,
-        refresh_token: data.session.refresh_token,
-        expires_at: data.session.expires_at || 0,
-      },
-    };
-
-    return new Response(JSON.stringify(response), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    body = await request.json();
   } catch (error) {
-    console.error('Login error:', error);
     return new Response(
-      JSON.stringify({ error: 'Internal server error' }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
+      JSON.stringify({ error: 'Nieprawidłowe dane JSON.' }),
+      { status: 400, headers: { 'Content-Type': 'application/json' } }
     );
   }
+
+  // Validate input with Zod
+  const validation = loginSchema.safeParse(body);
+  if (!validation.success) {
+    return new Response(
+      JSON.stringify({
+        message: 'Błąd walidacji danych.',
+        errors: validation.error.errors,
+      }),
+      { status: 422, headers: { 'Content-Type': 'application/json' } }
+    );
+  }
+
+  const { email, password } = validation.data;
+
+  // Attempt to sign in with Supabase
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
+
+  if (error) {
+    console.error('Login error:', error);
+    
+    // Map Supabase errors to user-friendly messages
+    let errorMessage = 'Wystąpił błąd podczas logowania.';
+    let errorCode = 'GENERIC_ERROR';
+    
+    if (error.message === 'Invalid login credentials') {
+      errorMessage = 'Nieprawidłowy email lub hasło.';
+      errorCode = 'INVALID_CREDENTIALS';
+    } else if (error.message === 'Email not confirmed') {
+      errorMessage = 'Konto nie zostało aktywowane. Sprawdź swoją skrzynkę email i kliknij w link potwierdzający.';
+      errorCode = 'EMAIL_NOT_CONFIRMED';
+    } else if (error.message.includes('Too many requests')) {
+      errorMessage = 'Zbyt wiele prób logowania. Spróbuj ponownie za kilka minut.';
+      errorCode = 'TOO_MANY_REQUESTS';
+    }
+
+    return new Response(
+      JSON.stringify({ 
+        error: errorMessage,
+        code: errorCode 
+      }),
+      { status: 400, headers: { 'Content-Type': 'application/json' } }
+    );
+  }
+
+  // Success - cookies are automatically set by Supabase server client
+  return new Response(
+    JSON.stringify({ user: data.user }),
+    { status: 200, headers: { 'Content-Type': 'application/json' } }
+  );
 };
 

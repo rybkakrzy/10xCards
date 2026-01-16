@@ -6,16 +6,16 @@ const user = Astro.locals.user;
 ---
 
 <Layout title="Dashboard - 10xCards">
-  <div class="min-h-screen bg-gray-50">
+  <div class="min-h-screen bg-gradient-to-br from-red-50 via-yellow-50 to-red-50">
     <!-- Header -->
-    <header class="bg-white shadow">
+    <header class="bg-white/80 backdrop-blur-sm shadow-md border-b-2 border-primary/20">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-        <h1 class="text-2xl font-bold text-gray-900">10xCards</h1>
+        <h1 class="text-2xl font-bold text-primary">10xCards</h1>
         <div class="flex items-center gap-4">
           <span class="text-sm text-gray-600">{user?.email}</span>
           <button
             id="logout-btn"
-            class="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md"
+            class="px-4 py-2 text-sm font-medium text-primary-foreground bg-primary hover:bg-primary/90 rounded-md transition-colors"
           >
             Wyloguj
           </button>
@@ -27,15 +27,15 @@ const user = Astro.locals.user;
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <!-- Stats -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div class="bg-white p-6 rounded-lg shadow">
+        <div class="bg-white p-6 rounded-lg shadow-lg border-t-4 border-primary">
           <h3 class="text-sm font-medium text-gray-500">Wszystkie fiszki</h3>
           <p id="total-count" class="text-3xl font-bold text-gray-900">0</p>
         </div>
-        <div class="bg-white p-6 rounded-lg shadow">
+        <div class="bg-white p-6 rounded-lg shadow-lg border-t-4 border-secondary">
           <h3 class="text-sm font-medium text-gray-500">Do powtórki</h3>
-          <p id="review-count" class="text-3xl font-bold text-indigo-600">0</p>
+          <p id="review-count" class="text-3xl font-bold text-primary">0</p>
         </div>
-        <div class="bg-white p-6 rounded-lg shadow">
+        <div class="bg-white p-6 rounded-lg shadow-lg border-t-4 border-green-500">
           <h3 class="text-sm font-medium text-gray-500">Opanowane</h3>
           <p id="mastered-count" class="text-3xl font-bold text-green-600">0</p>
         </div>
@@ -45,26 +45,26 @@ const user = Astro.locals.user;
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <a
           href="/learn"
-          class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-8 px-6 rounded-lg shadow-lg text-center text-xl transition-colors"
+          class="bg-primary hover:bg-primary/90 text-primary-foreground font-medium py-8 px-6 rounded-lg shadow-lg text-center text-xl transition-colors border-2 border-primary/20"
         >
           🎓 Ucz się teraz
         </a>
         <a
           href="/generate"
-          class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-8 px-6 rounded-lg shadow-lg text-center text-xl transition-colors"
+          class="bg-secondary hover:bg-secondary/90 text-secondary-foreground font-medium py-8 px-6 rounded-lg shadow-lg text-center text-xl transition-colors border-2 border-secondary/20"
         >
           ✨ Generuj fiszki AI
         </a>
         <a
           href="/flashcards"
-          class="bg-gray-600 hover:bg-gray-700 text-white font-medium py-8 px-6 rounded-lg shadow-lg text-center text-xl transition-colors"
+          class="bg-white hover:bg-gray-50 text-gray-900 font-medium py-8 px-6 rounded-lg shadow-lg text-center text-xl transition-colors border-2 border-gray-300"
         >
           📚 Zarządzaj fiszkami
         </a>
       </div>
 
       <!-- Recent Activity -->
-      <div class="bg-white rounded-lg shadow p-6">
+      <div class="bg-white rounded-lg shadow-lg p-6 border-t-4 border-primary">
         <h2 class="text-xl font-bold text-gray-900 mb-4">Ostatnia aktywność</h2>
         <div id="recent-flashcards" class="space-y-3">
           <p class="text-gray-500 text-center py-8">Ładowanie...</p>

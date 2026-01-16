@@ -3,20 +3,20 @@ import Layout from '@/layouts/Layout.astro';
 ---
 
 <Layout title="Moje fiszki - 10xCards">
-  <div class="min-h-screen bg-gray-50">
-    <header class="bg-white shadow">
+  <div class="min-h-screen bg-gradient-to-br from-red-50 via-yellow-50 to-red-50">
+    <header class="bg-white/80 backdrop-blur-sm shadow-md border-b-2 border-primary/20">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <div class="flex justify-between items-center">
-          <h1 class="text-2xl font-bold text-gray-900">Moje fiszki</h1>
-          <a href="/dashboard" class="text-indigo-600 hover:text-indigo-700">← Powrót</a>
+          <h1 class="text-2xl font-bold text-primary">Moje fiszki</h1>
+          <a href="/dashboard" class="text-primary hover:text-primary/90 font-medium">← Powrót</a>
         </div>
       </div>
     </header>
 
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <!-- Add New Flashcard -->
-      <div class="bg-white rounded-lg shadow p-6 mb-8">
-        <h2 class="text-xl font-bold text-gray-900 mb-4">Dodaj nową fiszkę</h2>
+      <div class="bg-white rounded-lg shadow-lg border-t-4 border-secondary p-6 mb-8">
+        <h2 class="text-xl font-bold text-gray-900 mb-4">✏️ Dodaj nową fiszkę</h2>
         <form id="add-form" class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <label for="front" class="block text-sm font-medium text-gray-700 mb-1">
@@ -27,7 +27,7 @@ import Layout from '@/layouts/Layout.astro';
               name="front"
               type="text"
               required
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              class="w-full px-3 py-2 border-2 border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
               placeholder="np. el gato"
             />
           </div>
@@ -40,14 +40,14 @@ import Layout from '@/layouts/Layout.astro';
               name="back"
               type="text"
               required
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              class="w-full px-3 py-2 border-2 border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
               placeholder="np. kot (rzeczownik)"
             />
           </div>
           <div class="flex items-end">
             <button
               type="submit"
-              class="w-full py-2 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-md"
+              class="w-full py-2 px-4 bg-primary hover:bg-primary/90 text-primary-foreground font-medium rounded-md shadow-md"
             >
               Dodaj
             </button>
@@ -56,7 +56,7 @@ import Layout from '@/layouts/Layout.astro';
       </div>
 
       <!-- Filters -->
-      <div class="bg-white rounded-lg shadow p-4 mb-6">
+      <div class="bg-white rounded-lg shadow-lg border-t-4 border-primary p-4 mb-6">
         <div class="flex flex-wrap gap-4">
           <select id="filter-box" class="px-3 py-2 border border-gray-300 rounded-md">
             <option value="">Wszystkie pudełka</option>
@@ -73,21 +73,21 @@ import Layout from '@/layouts/Layout.astro';
             id="search"
             type="text"
             placeholder="Szukaj..."
-            class="px-3 py-2 border border-gray-300 rounded-md flex-1"
+            class="px-3 py-2 border-2 border-gray-300 rounded-md flex-1 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
           />
         </div>
       </div>
 
       <!-- Flashcards List -->
       <div id="loading" class="text-center py-8">
-        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
       </div>
 
       <div id="flashcards-list" class="hidden grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       </div>
 
-      <div id="no-results" class="hidden text-center py-8 text-gray-500">
-        Brak fiszek do wyświetlenia
+      <div id="no-results" class="hidden bg-white rounded-lg shadow-lg border-t-4 border-secondary p-8 text-center text-gray-500">
+        📭 Brak fiszek do wyświetlenia
       </div>
     </main>
   </div>

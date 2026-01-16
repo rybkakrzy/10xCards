@@ -3,10 +3,10 @@ import Layout from "../layouts/Layout.astro";
 ---
 
 <Layout title="10xCards - Nauka Hiszpańskiego">
-  <div class="min-h-screen bg-gradient-to-br from-amber-50 to-orange-100 dark:from-gray-900 dark:to-gray-800">
+  <div class="min-h-screen bg-gradient-to-br from-red-50 via-yellow-50 to-red-50 dark:from-gray-900 dark:to-gray-800">
     <div class="container mx-auto px-4 py-16">
       <div class="max-w-4xl mx-auto text-center">
-        <h1 class="text-5xl font-bold mb-6 bg-gradient-to-r from-red-600 to-orange-600 text-transparent bg-clip-text">
+        <h1 class="text-5xl font-bold mb-6 text-primary">
           10xCards
         </h1>
         <p class="text-2xl mb-4 text-gray-700 dark:text-gray-300">
@@ -17,7 +17,7 @@ import Layout from "../layouts/Layout.astro";
         </p>
 
         <div class="grid md:grid-cols-3 gap-8 mb-12">
-          <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
+          <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg border-t-4 border-primary">
             <div class="text-4xl mb-4">🤖</div>
             <h3 class="text-xl font-semibold mb-2">AI Generator</h3>
             <p class="text-gray-600 dark:text-gray-400">
@@ -25,7 +25,7 @@ import Layout from "../layouts/Layout.astro";
             </p>
           </div>
 
-          <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
+          <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg border-t-4 border-secondary">
             <div class="text-4xl mb-4">📚</div>
             <h3 class="text-xl font-semibold mb-2">Spaced Repetition</h3>
             <p class="text-gray-600 dark:text-gray-400">
@@ -33,7 +33,7 @@ import Layout from "../layouts/Layout.astro";
             </p>
           </div>
 
-          <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
+          <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg border-t-4 border-primary">
             <div class="text-4xl mb-4">✏️</div>
             <h3 class="text-xl font-semibold mb-2">Własne Fiszki</h3>
             <p class="text-gray-600 dark:text-gray-400">
@@ -45,13 +45,13 @@ import Layout from "../layouts/Layout.astro";
         <div class="space-x-4">
           <a
             href="/register"
-            class="inline-block bg-red-600 hover:bg-red-700 text-white font-semibold px-8 py-3 rounded-lg transition-colors"
+            class="inline-block bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-8 py-3 rounded-lg transition-colors"
           >
             Zacznij naukę
           </a>
           <a
             href="/login"
-            class="inline-block bg-white hover:bg-gray-50 text-red-600 font-semibold px-8 py-3 rounded-lg border-2 border-red-600 transition-colors"
+            class="inline-block bg-white hover:bg-gray-50 text-primary font-semibold px-8 py-3 rounded-lg border-2 border-primary transition-colors"
           >
             Zaloguj się
           </a>
@@ -61,23 +61,23 @@ import Layout from "../layouts/Layout.astro";
           <h2 class="text-2xl font-bold mb-4">Jak to działa?</h2>
           <ol class="space-y-3 text-gray-700 dark:text-gray-300">
             <li class="flex items-start">
-              <span class="font-bold text-red-600 mr-2">1.</span>
+              <span class="font-bold text-primary mr-2">1.</span>
               <span>Wklej tekst hiszpański (artykuł, opowiadanie, dialog)</span>
             </li>
             <li class="flex items-start">
-              <span class="font-bold text-red-600 mr-2">2.</span>
+              <span class="font-bold text-primary mr-2">2.</span>
               <span>AI wybiera najtrudniejsze słowa i tworzy fiszki z tłumaczeniem</span>
             </li>
             <li class="flex items-start">
-              <span class="font-bold text-red-600 mr-2">3.</span>
+              <span class="font-bold text-primary mr-2">3.</span>
               <span>Przejrzyj propozycje, edytuj lub odrzuć niechciane</span>
             </li>
             <li class="flex items-start">
-              <span class="font-bold text-red-600 mr-2">4.</span>
+              <span class="font-bold text-primary mr-2">4.</span>
               <span>Zapisz fiszki i rozpocznij naukę z systemem powtórek</span>
             </li>
             <li class="flex items-start">
-              <span class="font-bold text-red-600 mr-2">5.</span>
+              <span class="font-bold text-primary mr-2">5.</span>
               <span>Powtarzaj regularnie według algorytmu - efektywna nauka gwarantowana!</span>
             </li>
           </ol>

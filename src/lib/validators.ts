@@ -49,15 +49,23 @@ export const UpdateFlashcardSchema = z.object({
 const flashcardImportItemSchema = z.object({
   front: z.string().min(1, 'Słowo w języku hiszpańskim jest wymagane'),
   back: z.string().min(1, 'Tłumaczenie jest wymagane'),
-  part_of_speech: z.string().optional(),
-  ai_generated: z.boolean().optional().default(true),
+  part_of_speech: z.string().nullable().optional(),
 });
 
-export const ImportFlashcardsRequestSchema = z.object({
-  flashcards: z.array(flashcardImportItemSchema)
-    .min(1, 'Wymagana jest co najmniej jedna fiszka')
-    .max(20, 'Maksymalnie 20 fiszek na raz'),
+const importMetricsSchema = z.object({
+  generatedCount: z.number().int().min(0),
+  importedCount: z.number().int().min(1),
 });
+
+export const importFlashcardsRequestSchema = z
+  .object({
+    flashcards: z.array(flashcardImportItemSchema).min(1, 'At least one flashcard is required'),
+    metrics: importMetricsSchema,
+  })
+  .refine((data) => data.flashcards.length === data.metrics.importedCount, {
+    message: 'importedCount must match the number of flashcards',
+    path: ['metrics', 'importedCount'],
+  });
 
 /**
  * Schema walidacji dla aktualizacji statusu przeglądu fiszki.
