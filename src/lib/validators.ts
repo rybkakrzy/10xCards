@@ -90,3 +90,14 @@ export const GetFlashcardsQuerySchema = z.object({
   order: z.enum(['asc', 'desc']).optional().default('desc'),
 });
 
+/**
+ * Schema walidacji dla aktualizacji profilu użytkownika.
+ * Umożliwia aktualizację domyślnego poziomu AI.
+ */
+export const updateProfileSchema = z.object({
+  default_ai_level: z.enum(['a1', 'a2', 'b1', 'b2', 'c1', 'c2'], {
+    required_error: 'default_ai_level jest wymagane.',
+    invalid_type_error: 'default_ai_level musi być prawidłowym poziomem językowym (a1, a2, b1, b2, c1, c2).',
+  }),
+});
+

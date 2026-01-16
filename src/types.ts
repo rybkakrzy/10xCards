@@ -199,6 +199,81 @@ export interface LearningSessionState {
 
 export type LanguageLevel = 'A2' | 'B1' | 'B2';
 
+// ============================================================================
+// Enhanced Types for Template Compatibility
+// ============================================================================
+
+/**
+ * Query parameters for flashcard list pagination and sorting.
+ */
+export interface FlashcardListQueryParams {
+  page?: number;
+  pageSize?: number;
+  sortBy?: string;
+  order?: 'asc' | 'desc';
+}
+
+/**
+ * DTO for pagination details included in list responses.
+ */
+export interface PaginationDto {
+  currentPage: number;
+  pageSize: number;
+  totalItems: number;
+  totalPages: number;
+}
+
+/**
+ * Command Model for updating an existing flashcard.
+ * All fields are optional to allow partial updates.
+ */
+export type UpdateFlashcardCommand = Partial<Pick<Flashcard, 'front' | 'back' | 'part_of_speech'>>;
+
+/**
+ * Props for the EditableCell component.
+ * Manages inline editing of flashcard fields.
+ */
+export interface EditableCellProps {
+  value: string | null;
+  fieldName: keyof UpdateFlashcardCommand;
+  onSave: (value: string) => Promise<void>;
+  isEditable?: boolean;
+}
+
+/**
+ * Local state for the EditableCell component.
+ * Tracks editing mode, current value, validation errors and saving state.
+ */
+export interface EditableCellState {
+  isEditing: boolean;
+  currentValue: string;
+  error: string | null;
+  isSaving: boolean;
+}
+
+/**
+ * ViewModel for AI suggestion with editing state.
+ */
+export interface AiSuggestionViewModel {
+  id: string;
+  front: string;
+  back: string;
+  isEditing: boolean;
+  tempFront: string;
+  tempBack: string;
+  tempPartOfSpeech: string | null;
+}
+
+/**
+ * State for AI generation functionality.
+ */
+export interface AiGenerationState {
+  suggestions: AiSuggestionViewModel[];
+  isGenerating: boolean;
+  isImporting: boolean;
+  error: string | null;
+}
+
 export type LeitnerBox = 1 | 2 | 3 | 4 | 5;
 
 export type PartOfSpeech =
@@ -244,3 +319,98 @@ export const REVIEW_INTERVALS = {
   BOX_3: 3 * 24 * 60 * 60 * 1000, // 3 days
 } as const;
 
+// ============================================================================
+// Additional ViewModels for New Features
+// ============================================================================
+
+/**
+ * Represents a single AI-generated suggestion with editing capabilities
+ */
+export interface AiSuggestionViewModel {
+  id: string;
+  front: string;
+  back: string;
+  isEditing: boolean;
+  tempFront: string;
+  tempBack: string;
+  tempPartOfSpeech: string | null;
+}
+
+/**
+ * ViewModel for manual flashcard creation form
+ */
+export interface ManualFormViewModel {
+  front: string;
+  back: string;
+  part_of_speech: string | null;
+  isSubmitting: boolean;
+}
+
+/**
+ * Command for generating AI suggestions
+ */
+export interface GenerateSuggestionsCommand {
+  text: string;
+  level: 'b1' | 'b2' | 'c1';
+}
+
+/**
+ * DTO for a single AI suggestion
+ */
+export interface AiSuggestion {
+  id: string;
+  front: string;
+  back: string;
+}
+
+/**
+ * Response DTO for generate suggestions endpoint
+ */
+export interface GenerateSuggestionsResponseDto {
+  suggestions: AiSuggestion[];
+}
+
+/**
+ * Command for importing flashcards
+ */
+export interface ImportFlashcardsCommand {
+  flashcards: Array<{
+    front: string;
+    back: string;
+    part_of_speech?: string;
+  }>;
+  metrics: {
+    generatedCount: number;
+    importedCount: number;
+  };
+}
+
+/**
+ * Response DTO for import flashcards endpoint
+ */
+export interface ImportFlashcardsResponseDto {
+  message: string;
+  importedCount: number;
+}
+
+/**
+ * DTO for creating a flashcard
+ */
+export interface CreateFlashcardCommand {
+  front: string;
+  back: string;
+  part_of_speech?: string;
+}
+
+/**
+ * DTO for created flashcard response
+ */
+export interface CreatedFlashcardDto {
+  id: string;
+  front: string;
+  back: string;
+  part_of_speech: string | null;
+  leitner_box: number;
+  review_due_at: string;
+  created_at: string;
+}

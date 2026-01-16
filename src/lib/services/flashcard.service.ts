@@ -127,6 +127,7 @@ export class FlashcardService {
 
   /**
    * Aktualizuje istniejącą fiszkę.
+   * Uses RLS policies to ensure users can only update their own flashcards.
    */
   async updateFlashcard(
     flashcardId: string,
@@ -148,6 +149,22 @@ export class FlashcardService {
       .single();
 
     if (error) {
+      console.error('Error updating flashcard:', error);
+      
+      // Check if flashcard doesn't exist or user doesn't have access
+      if (error.code === 'PGRST116') {
+        throw new Error('Flashcard not found or access denied.');
+      }
+      
+      throw new Error('Database operation failed.');
+    }
+
+    if (!updatedFlashcard) {
+      throw new Error('Flashcard not found or access denied.');
+    }
+
+    return updatedFlashcard as Flashcard;
+  }
       console.error('Error updating flashcard:', error);
       if (error.code === 'PGRST116') {
         throw new Error('FLASHCARD_NOT_FOUND');

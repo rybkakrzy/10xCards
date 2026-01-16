@@ -12,36 +12,34 @@ export const POST: APIRoute = async ({ request, locals }) => {
     }
 
     const body = await request.json();
-    const { flashcards, metrics } = body;
+    const { front, back, part_of_speech } = body;
 
-    if (!flashcards || !Array.isArray(flashcards) || flashcards.length === 0) {
-      return new Response(JSON.stringify({ error: 'Flashcards array is required' }), {
+    if (!front || !front.trim() || !back || !back.trim()) {
+      return new Response(JSON.stringify({ error: 'Front and back are required' }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' },
       });
     }
 
-    // Prepare flashcards for bulk insert
-    const flashcardsToInsert = flashcards.map((card) => ({
-      user_id: user.id,
-      front: card.front,
-      back: card.back,
-      part_of_speech: card.part_of_speech || null,
-      ai_generated: true,
-      leitner_box: 1,
-      review_due_at: new Date().toISOString(),
-    }));
-
-    // Insert flashcards
+    // Insert flashcard
     const { data, error } = await supabase
       .from('flashcards')
-      .insert(flashcardsToInsert)
-      .select();
+      .insert({
+        user_id: user.id,
+        front: front.trim(),
+        back: back.trim(),
+        part_of_speech: part_of_speech || null,
+        ai_generated: false,
+        leitner_box: 1,
+        review_due_at: new Date().toISOString(),
+      })
+      .select()
+      .single();
 
     if (error) {
-      console.error('Error inserting flashcards:', error);
+      console.error('Error creating flashcard:', error);
       return new Response(
-        JSON.stringify({ error: 'Failed to import flashcards' }),
+        JSON.stringify({ error: 'Failed to create flashcard' }),
         {
           status: 500,
           headers: { 'Content-Type': 'application/json' },
@@ -50,17 +48,14 @@ export const POST: APIRoute = async ({ request, locals }) => {
     }
 
     return new Response(
-      JSON.stringify({
-        message: 'Flashcards imported successfully',
-        importedCount: data.length,
-      }),
+      JSON.stringify(data),
       {
-        status: 200,
+        status: 201,
         headers: { 'Content-Type': 'application/json' },
       }
     );
   } catch (error) {
-    console.error('Error importing flashcards:', error);
+    console.error('Error creating flashcard:', error);
     return new Response(
       JSON.stringify({ error: 'Internal server error' }),
       {

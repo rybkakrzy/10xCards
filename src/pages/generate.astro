@@ -1,103 +1,22 @@
 ---
 import Layout from '@/layouts/Layout.astro';
+import { HomePage } from '@/components/home/HomePage';
+import { Toaster } from '@/components/ui/sonner';
+
+// Auth check - redirect to login if not authenticated
+// @ts-ignore - Astro types not properly merged
+const user = Astro.locals.user;
+
+if (!user) {
+  return Astro.redirect('/login');
+}
 ---
 
 <Layout title="Generuj fiszki - 10xCards">
-  <div class="min-h-screen bg-gray-50">
-    <header class="bg-white shadow">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        <div class="flex justify-between items-center">
-          <h1 class="text-2xl font-bold text-gray-900">Generuj fiszki AI</h1>
-          <a href="/dashboard" class="text-indigo-600 hover:text-indigo-700">← Powrót</a>
-        </div>
-      </div>
-    </header>
-
-    <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <!-- Generation Form -->
-      <div class="bg-white rounded-lg shadow p-6 mb-8">
-        <form id="generate-form" class="space-y-4">
-          <div>
-            <label for="text" class="block text-sm font-medium text-gray-700 mb-2">
-              Tekst po hiszpańsku
-            </label>
-            <textarea
-              id="text"
-              name="text"
-              rows="8"
-              maxlength="2000"
-              required
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              placeholder="Wklej tekst po hiszpańsku (max 2000 znaków)..."
-            ></textarea>
-            <p class="text-sm text-gray-500 mt-1">
-              <span id="char-count">0</span> / 2000 znaków
-            </p>
-          </div>
-
-          <div>
-            <label for="level" class="block text-sm font-medium text-gray-700 mb-2">
-              Poziom trudności
-            </label>
-            <select
-              id="level"
-              name="level"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            >
-              <option value="A2">A2 - Podstawowy</option>
-              <option value="B1" selected>B1 - Średniozaawansowany</option>
-              <option value="B2">B2 - Zaawansowany</option>
-            </select>
-          </div>
-
-          <div id="error-message" class="hidden text-red-600 text-sm"></div>
-
-          <button
-            type="submit"
-            class="w-full py-3 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            ✨ Generuj fiszki
-          </button>
-        </form>
-      </div>
-
-      <!-- Loading State -->
-      <div id="loading" class="hidden bg-white rounded-lg shadow p-8 text-center">
-        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
-        <p class="text-gray-600">Generuję fiszki...</p>
-      </div>
-
-      <!-- Generated Flashcards -->
-      <div id="flashcards-container" class="hidden">
-        <div class="bg-white rounded-lg shadow p-6">
-          <div class="flex justify-between items-center mb-4">
-            <h2 class="text-xl font-bold text-gray-900">Wygenerowane fiszki</h2>
-            <button
-              id="save-all-btn"
-              class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-md"
-            >
-              Zapisz wszystkie
-            </button>
-          </div>
-          <div id="flashcards-list" class="space-y-3"></div>
-        </div>
-      </div>
-    </main>
-  </div>
+  <HomePage client:load />
+  <Toaster client:only="react" />
 </Layout>
 
-<script>
-  const form = document.getElementById('generate-form') as HTMLFormElement;
-  const textArea = document.getElementById('text') as HTMLTextAreaElement;
-  const charCount = document.getElementById('char-count') as HTMLSpanElement;
-  const errorMessage = document.getElementById('error-message') as HTMLDivElement;
-  const loading = document.getElementById('loading') as HTMLDivElement;
-  const flashcardsContainer = document.getElementById('flashcards-container') as HTMLDivElement;
-  const flashcardsList = document.getElementById('flashcards-list') as HTMLDivElement;
-
-  let generatedFlashcards: any[] = [];
-
-  // Character counter
   textArea.addEventListener('input', () => {
     charCount.textContent = textArea.value.length.toString();
   });
