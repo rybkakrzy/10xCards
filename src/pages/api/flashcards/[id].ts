@@ -127,6 +127,7 @@ export const PATCH: APIRoute = async ({ params, request, locals }) => {
   try {
     // Update flashcard through service
     const updatedFlashcard = await flashcardService.updateFlashcard(
+      locals.supabase,
       flashcardId,
       user.id,
       bodyValidation.data as UpdateFlashcardRequest

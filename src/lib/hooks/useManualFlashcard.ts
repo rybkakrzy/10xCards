@@ -75,7 +75,7 @@ export function useManualFlashcard(): UseManualFlashcardReturn {
       const command: CreateFlashcardCommand = {
         front: form.front.trim(),
         back: form.back.trim(),
-        part_of_speech: form.part_of_speech?.trim() || undefined,
+        part_of_speech: form.part_of_speech?.trim() || null,
       };
 
       const response = await fetch('/api/flashcards/create', {
