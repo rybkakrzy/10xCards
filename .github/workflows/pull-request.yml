@@ -21,7 +21,7 @@ jobs:
           cache: 'npm'
           
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --legacy-peer-deps
         
       - name: Run Astro check
         run: npx astro check
@@ -45,7 +45,7 @@ jobs:
           cache: 'npm'
           
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --legacy-peer-deps
         
       - name: Run unit tests with coverage
         run: npm run test:unit -- --coverage
@@ -83,7 +83,7 @@ jobs:
           cache: 'npm'
           
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --legacy-peer-deps
         
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
