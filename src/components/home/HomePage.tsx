@@ -44,7 +44,7 @@ export function HomePage() {
             <TabsTrigger value="ai">
               Generuj z AI
             </TabsTrigger>
-            <TabsTrigger value="manual">
+            <TabsTrigger value="manual" data-test-id="manual-tab-trigger">
               Dodaj ręcznie
             </TabsTrigger>
           </TabsList>

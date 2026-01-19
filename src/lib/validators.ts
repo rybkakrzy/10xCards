@@ -76,6 +76,17 @@ export const UpdateCardReviewSchema = z.object({
 });
 
 /**
+ * Schema walidacji dla aktualizacji profilu użytkownika.
+ * Umożliwia aktualizację domyślnego poziomu językowego używanego przy generowaniu fiszek AI.
+ */
+export const UpdateProfileSchema = z.object({
+  default_ai_level: z.enum(['a1', 'a2', 'b1', 'b2', 'c1', 'c2'], {
+    required_error: 'Poziom językowy jest wymagany.',
+    invalid_type_error: 'Poziom musi być jednym z: a1, a2, b1, b2, c1, c2.',
+  }),
+});
+
+/**
  * Schema walidacji dla generowania fiszek AI.
  */
 export const GenerateSuggestionsSchema = z.object({

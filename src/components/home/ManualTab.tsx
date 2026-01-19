@@ -64,6 +64,7 @@ export function ManualTab({ onCreateSuccess, onError }: ManualTabProps) {
           </Label>
           <Input
             id="manual-front"
+            data-test-id="front-input"
             value={form.front}
             onChange={(e) => updateField('front', e.target.value)}
             placeholder="np. hola"
@@ -84,6 +85,7 @@ export function ManualTab({ onCreateSuccess, onError }: ManualTabProps) {
           </Label>
           <Input
             id="manual-back"
+            data-test-id="back-input"
             value={form.back}
             onChange={(e) => updateField('back', e.target.value)}
             placeholder="np. cześć"
@@ -124,6 +126,7 @@ export function ManualTab({ onCreateSuccess, onError }: ManualTabProps) {
         {/* Submit Button */}
         <Button
           type="submit"
+          data-test-id="add-flashcard-button"
           disabled={!isFormValid || isSubmitting}
           className="w-full"
           size="lg"

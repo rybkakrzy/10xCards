@@ -1,0 +1,91 @@
+---
+import '../styles/global.css';
+import { Toaster } from '../components/ui/sonner';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const { 
+  title = '10xCards - Nauka Hiszpańskiego',
+  description = 'Ucz się języka hiszpańskiego z fiszkami generowanymi przez AI i systemem powtórek'
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="pl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="description" content={description} />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+  </head>
+  <body>
+    <div class="min-h-screen bg-background">
+      <header class="border-b">
+        <div class="container mx-auto px-4 py-4">
+          <nav class="flex items-center justify-between">
+            <a href="/dashboard" class="text-2xl font-bold text-primary">10xCards</a>
+            <div class="flex gap-4">
+              <a href="/generate" class="text-sm font-medium hover:text-primary transition-colors">
+                Generuj fiszki
+              </a>
+              <a href="/flashcards" data-test-id="my-flashcards-nav-button" class="text-sm font-medium hover:text-primary transition-colors">
+                Moje Fiszki
+              </a>
+              <a href="/learn" class="text-sm font-medium hover:text-primary transition-colors">
+                Ucz się
+              </a>
+              <button 
+                onclick="handleLogout()"
+                class="text-sm font-medium hover:text-primary transition-colors cursor-pointer"
+              >
+                Wyloguj
+              </button>
+            </div>
+          </nav>
+        </div>
+      </header>
+
+      <main class="container mx-auto px-4 py-8">
+        <slot />
+      </main>
+
+      <footer class="border-t mt-auto">
+        <div class="container mx-auto px-4 py-6 text-center text-sm text-muted-foreground">
+          <p>&copy; {new Date().getFullYear()} 10xCards. Wszystkie prawa zastrzeżone.</p>
+        </div>
+      </footer>
+    </div>
+    
+    <Toaster client:load />
+
+    <script>
+      (window as any).handleLogout = async function() {
+        try {
+          const response = await fetch('/api/auth/logout', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          });
+
+          if (!response.ok) {
+            throw new Error('Wystąpił błąd podczas wylogowania');
+          }
+
+          // Success - redirect to login page
+          window.location.href = '/login';
+        } catch (error) {
+          console.error('Logout error:', error);
+          // Show error message and still redirect
+          alert('Wystąpił błąd podczas wylogowania. Przekierowuję na stronę logowania.');
+          window.location.href = '/login';
+        }
+      }
+    </script>
+  </body>
+</html>

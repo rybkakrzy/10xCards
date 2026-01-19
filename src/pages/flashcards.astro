@@ -1,20 +1,10 @@
 ---
-import Layout from '@/layouts/Layout.astro';
+import MainLayout from '@/layouts/MainLayout.astro';
 ---
 
-<Layout title="Moje fiszki - 10xCards">
-  <div class="min-h-screen bg-gradient-to-br from-red-50 via-yellow-50 to-red-50">
-    <header class="bg-white/80 backdrop-blur-sm shadow-md border-b-2 border-primary/20">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        <div class="flex justify-between items-center">
-          <h1 class="text-2xl font-bold text-primary">Moje fiszki</h1>
-          <a href="/dashboard" class="text-primary hover:text-primary/90 font-medium">← Powrót</a>
-        </div>
-      </div>
-    </header>
-
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <!-- Add New Flashcard -->
+<MainLayout title="Moje fiszki - 10xCards">
+  <div class="max-w-7xl mx-auto">
+    <!-- Add New Flashcard -->
       <div class="bg-white rounded-lg shadow-lg border-t-4 border-secondary p-6 mb-8">
         <h2 class="text-xl font-bold text-gray-900 mb-4">✏️ Dodaj nową fiszkę</h2>
         <form id="add-form" class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -89,9 +79,9 @@ import Layout from '@/layouts/Layout.astro';
       <div id="no-results" class="hidden bg-white rounded-lg shadow-lg border-t-4 border-secondary p-8 text-center text-gray-500">
         📭 Brak fiszek do wyświetlenia
       </div>
-    </main>
+    </div>
   </div>
-</Layout>
+</MainLayout>
 
 <script>
   let allFlashcards: any[] = [];

@@ -1,7 +1,6 @@
 ---
-import Layout from '@/layouts/Layout.astro';
+import MainLayout from '@/layouts/MainLayout.astro';
 import { HomePage } from '@/components/home/HomePage';
-import { Toaster } from '@/components/ui/sonner';
 
 // Auth check - redirect to login if not authenticated
 // @ts-ignore - Astro types not properly merged
@@ -12,8 +11,7 @@ if (!user) {
 }
 ---
 
-<Layout title="Generuj fiszki - 10xCards">
+<MainLayout title="Generuj fiszki - 10xCards">
   <HomePage client:load />
-  <Toaster client:only="react" />
-</Layout>
+</MainLayout>
 
