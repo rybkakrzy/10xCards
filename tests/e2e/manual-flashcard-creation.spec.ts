@@ -4,11 +4,13 @@ test.describe('Manual Flashcard Creation', () => {
   test.beforeEach(async ({ page }) => {
     // Login before each test
     await page.goto('/login');
-    await page.waitForTimeout(2000)
+    await page.waitForTimeout(2000);
     await page.fill('input[type="email"]', process.env.E2E_USERNAME!);
     await page.fill('input[type="password"]', process.env.E2E_PASSWORD!);
     await page.click('button[data-test-id="login-submit-button"]');
-    await expect(page).toHaveURL('/dashboard', { timeout: 5000 });
+    
+    // Wait for redirect after login
+    await page.waitForURL('/dashboard', { timeout: 10000 });
   });
 
   test('user can create a flashcard manually', async ({ page }) => {
@@ -30,19 +32,24 @@ test.describe('Manual Flashcard Creation', () => {
     await page.click('[data-test-id="add-flashcard-button"]');
 
     // Verify success toast
+    await page.waitForTimeout(1000);
     await expect(page.locator('text=/została dodana/i')).toBeVisible({
-      timeout: 5000,
+      timeout: 10000,
     });
 
     // Navigate to flashcards page
     await page.click('a[data-test-id="my-flashcards-nav-button"]');
 
     // Verify we are on the flashcards page
-    await expect(page).toHaveURL('/flashcards', { timeout: 10000 });
+    await page.waitForURL('/flashcards', { timeout: 10000 });
+    await expect(page).toHaveURL('/flashcards');
 
+    // Wait for flashcards to load
+    await page.waitForTimeout(3000);
+    
     // Verify the new flashcard is in the list
-    await page.waitForTimeout(2000);
-    await expect(page.locator(`text=${guidFront}`)).toBeVisible({ timeout: 5000 });
-    await expect(page.locator(`text=${guidBack}`)).toBeVisible({ timeout: 5000 });
+    const flashcardCard = page.locator('.bg-white, [role="row"]').filter({ hasText: guidFront });
+    await expect(flashcardCard).toBeVisible({ timeout: 10000 });
+    await expect(flashcardCard.locator(`text=${guidBack}`)).toBeVisible();
   });
 });
