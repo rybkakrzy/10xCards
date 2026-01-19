@@ -3,7 +3,6 @@ import type {
   GenerateSuggestionsCommand,
   GenerateSuggestionsResponseDto,
   ImportFlashcardsCommand,
-  ImportFlashcardsResponseDto,
   AiSuggestionViewModel,
   AiSuggestion,
 } from '../../types';

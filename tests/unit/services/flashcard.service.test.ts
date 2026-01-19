@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { flashcardService } from '../../../src/lib/services/flashcard.service';
 import { createMockSupabaseClient, createMockFlashcard } from '../../setup/supabase.mock';
 
@@ -72,6 +72,7 @@ describe('flashcard.service', () => {
         flashcardService.createFlashcard(mockSupabase, 'test-user-id', {
           front: 'test',
           back: 'test',
+          part_of_speech: null,
         })
       ).rejects.toThrow('Database operation failed');
     });

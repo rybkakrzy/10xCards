@@ -12,7 +12,7 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { flashcardService } from '../../../src/lib/services/flashcard.service';
-import { FlashcardDetailDto, UpdateFlashcardCommand } from '../../../src/types';
+import type { FlashcardDetailDto, UpdateFlashcardCommand } from '../../../src/types';
 
 // Mock Supabase client
 const createMockSupabaseClient = () => {
@@ -47,6 +47,7 @@ describe('flashcardService.updateFlashcard', () => {
         front: 'Updated front text',
         back: 'Original back',
         part_of_speech: 'noun',
+        ai_generated: false,
         leitner_box: 1,
         review_due_at: '2025-10-23T10:00:00.000Z',
         created_at: '2025-10-22T10:00:00.000Z',
@@ -85,6 +86,7 @@ describe('flashcardService.updateFlashcard', () => {
         front: 'New front',
         back: 'New back',
         part_of_speech: 'verb',
+        ai_generated: false,
         leitner_box: 2,
         review_due_at: '2025-10-24T10:00:00.000Z',
         created_at: '2025-10-22T10:00:00.000Z',
@@ -118,6 +120,7 @@ describe('flashcardService.updateFlashcard', () => {
         front: 'Original front',
         back: 'Original back',
         part_of_speech: null,
+        ai_generated: false,
         leitner_box: 1,
         review_due_at: '2025-10-23T10:00:00.000Z',
         created_at: '2025-10-22T10:00:00.000Z',
@@ -222,6 +225,7 @@ describe('flashcardService.updateFlashcard', () => {
         front: 'Original front',
         back: 'Original back',
         part_of_speech: 'noun',
+        ai_generated: false,
         leitner_box: 1,
         review_due_at: '2025-10-23T10:00:00.000Z',
         created_at: '2025-10-22T10:00:00.000Z',
@@ -255,6 +259,7 @@ describe('flashcardService.updateFlashcard', () => {
         front: 'Updated front only',
         back: 'Original back (unchanged)',
         part_of_speech: 'noun (unchanged)',
+        ai_generated: false,
         leitner_box: 3,
         review_due_at: '2025-10-25T10:00:00.000Z',
         created_at: '2025-10-22T10:00:00.000Z',
@@ -292,6 +297,7 @@ describe('flashcardService.updateFlashcard', () => {
         front: 'Updated text',
         back: 'Original back',
         part_of_speech: 'noun',
+        ai_generated: false,
         leitner_box: 1,
         review_due_at: '2025-10-23T10:00:00.000Z',
         created_at: '2025-10-22T10:00:00.000Z',
