@@ -101,7 +101,8 @@ export class OpenRouterService {
     const { systemPrompt, userPrompt, model, responseSchema, params } = options;
 
     // Convert Zod schema to JSON Schema format for OpenRouter
-    const jsonSchema = zodToJsonSchema(responseSchema, 'responseSchema');
+    // JSON schema generation for OpenRouter API
+    zodToJsonSchema(responseSchema, 'responseSchema');
 
     // Construct the payload according to OpenRouter API specification
     // Note: Some models may not support custom JSON schemas, so we use json_object mode

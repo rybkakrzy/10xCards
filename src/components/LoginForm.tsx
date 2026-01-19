@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { mapSupabaseError } from '@/lib/auth';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';

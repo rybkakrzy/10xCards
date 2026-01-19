@@ -55,7 +55,7 @@ export const GET: APIRoute = async ({ params, locals }) => {
  * Allows partial updates of front, back, and part_of_speech fields.
  */
 export const PATCH: APIRoute = async ({ params, request, locals }) => {
-  const { supabase, user } = locals;
+  const { user } = locals;
 
   // Guard clause: Check authentication
   if (!user) {
