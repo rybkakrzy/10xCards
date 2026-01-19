@@ -195,4 +195,187 @@ describe('flashcard.service', () => {
       expect(result).toBeNull();
     });
   });
+
+  describe('getFlashcardById', () => {
+    it('should return flashcard by id', async () => {
+      // Arrange
+      const mockFlashcard = createMockFlashcard({ id: 'test-id-123' });
+
+      const mockSupabase = createMockSupabaseClient({
+        from: vi.fn().mockReturnValue({
+          select: vi.fn().mockReturnValue({
+            eq: vi.fn().mockReturnValue({
+              single: vi.fn().mockResolvedValue({
+                data: mockFlashcard,
+                error: null,
+              }),
+            }),
+          }),
+        }),
+      });
+
+      // Act
+      const result = await flashcardService.getFlashcardById(mockSupabase, 'test-id-123');
+
+      // Assert
+      expect(result).toEqual(mockFlashcard);
+      expect(result?.id).toBe('test-id-123');
+    });
+
+    it('should return null when flashcard not found', async () => {
+      // Arrange
+      const mockSupabase = createMockSupabaseClient({
+        from: vi.fn().mockReturnValue({
+          select: vi.fn().mockReturnValue({
+            eq: vi.fn().mockReturnValue({
+              single: vi.fn().mockResolvedValue({
+                data: null,
+                error: { code: 'PGRST116' },
+              }),
+            }),
+          }),
+        }),
+      });
+
+      // Act
+      const result = await flashcardService.getFlashcardById(mockSupabase, 'non-existent-id');
+
+      // Assert
+      expect(result).toBeNull();
+    });
+
+    it('should throw error when database operation fails', async () => {
+      // Arrange
+      const mockSupabase = createMockSupabaseClient({
+        from: vi.fn().mockReturnValue({
+          select: vi.fn().mockReturnValue({
+            eq: vi.fn().mockReturnValue({
+              single: vi.fn().mockResolvedValue({
+                data: null,
+                error: { code: 'PGRST500', message: 'Database error' },
+              }),
+            }),
+          }),
+        }),
+      });
+
+      // Act & Assert
+      await expect(
+        flashcardService.getFlashcardById(mockSupabase, 'test-id')
+      ).rejects.toThrow('Database operation failed.');
+    });
+  });
+
+  describe('deleteFlashcard', () => {
+    it('should delete flashcard successfully', async () => {
+      // Arrange
+      const mockSupabase = createMockSupabaseClient({
+        from: vi.fn().mockReturnValue({
+          delete: vi.fn().mockReturnValue({
+            eq: vi.fn().mockReturnValue({
+              eq: vi.fn().mockResolvedValue({
+                error: null,
+              }),
+            }),
+          }),
+        }),
+      });
+
+      // Act
+      const result = await flashcardService.deleteFlashcard(
+        mockSupabase,
+        'flashcard-123',
+        'test-user-id'
+      );
+
+      // Assert
+      expect(result).toBe(true);
+    });
+
+    it('should throw error when delete fails', async () => {
+      // Arrange
+      const mockSupabase = createMockSupabaseClient({
+        from: vi.fn().mockReturnValue({
+          delete: vi.fn().mockReturnValue({
+            eq: vi.fn().mockReturnValue({
+              eq: vi.fn().mockResolvedValue({
+                error: { message: 'Delete failed' },
+              }),
+            }),
+          }),
+        }),
+      });
+
+      // Act & Assert
+      await expect(
+        flashcardService.deleteFlashcard(mockSupabase, 'flashcard-123', 'test-user-id')
+      ).rejects.toThrow('Database operation failed.');
+    });
+  });
+
+  describe('importAiFlashcards', () => {
+    it('should import AI flashcards successfully', async () => {
+      // Arrange
+      const importCommand = {
+        flashcards: [
+          { front: 'hello', back: 'cześć', part_of_speech: 'noun' },
+          { front: 'goodbye', back: 'do widzenia', part_of_speech: 'phrase' },
+        ],
+        metrics: {
+          input_language: 'English',
+          output_language: 'Polish',
+          requested_flashcards_count: 2,
+        },
+      };
+
+      const expectedResponse = {
+        imported_count: 2,
+        flashcard_ids: ['id-1', 'id-2'],
+      };
+
+      const mockSupabase = createMockSupabaseClient({
+        rpc: vi.fn().mockResolvedValue({
+          data: expectedResponse,
+          error: null,
+        }),
+      });
+
+      // Act
+      const result = await flashcardService.importAiFlashcards(
+        mockSupabase,
+        'test-user-id',
+        importCommand,
+        'B1'
+      );
+
+      // Assert
+      expect(result).toEqual(expectedResponse);
+      expect(mockSupabase.rpc).toHaveBeenCalledWith('import_ai_flashcards', {
+        flashcards_data: importCommand.flashcards,
+        language_level_input: 'B1',
+        metrics_data: importCommand.metrics,
+        user_id_input: 'test-user-id',
+      });
+    });
+
+    it('should throw error when import fails', async () => {
+      // Arrange
+      const importCommand = {
+        flashcards: [{ front: 'test', back: 'test', part_of_speech: 'noun' }],
+        metrics: { input_language: 'en', output_language: 'pl', requested_flashcards_count: 1 },
+      };
+
+      const mockSupabase = createMockSupabaseClient({
+        rpc: vi.fn().mockResolvedValue({
+          data: null,
+          error: { message: 'RPC failed' },
+        }),
+      });
+
+      // Act & Assert
+      await expect(
+        flashcardService.importAiFlashcards(mockSupabase, 'test-user-id', importCommand, 'A1')
+      ).rejects.toThrow('Database transaction failed.');
+    });
+  });
 });
