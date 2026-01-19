@@ -12,7 +12,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
     }
 
     const body = await request.json();
-    const { flashcards, metrics } = body;
+    const { flashcards } = body;
 
     if (!flashcards || !Array.isArray(flashcards) || flashcards.length === 0) {
       return new Response(JSON.stringify({ error: 'Flashcards array is required' }), {

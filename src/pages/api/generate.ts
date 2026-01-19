@@ -1,5 +1,4 @@
 import type { APIRoute } from 'astro';
-import { supabase } from '@/db/supabase';
 
 export const POST: APIRoute = async ({ request, locals }) => {
   try {
@@ -12,7 +11,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
     }
 
     const body = await request.json();
-    const { text, level } = body;
+    const { text } = body;
 
     if (!text || !text.trim()) {
       return new Response(JSON.stringify({ error: 'Text is required' }), {

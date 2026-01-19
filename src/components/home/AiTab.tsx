@@ -19,7 +19,7 @@ interface AiTabProps {
  */
 export function AiTab({ onImportSuccess, onError }: AiTabProps) {
   const [text, setText] = useState('');
-  const [level, setLevel] = useState<Extract<LanguageLevel, 'b1' | 'b2' | 'c1'>>('b2');
+  const [level, setLevel] = useState<'b1' | 'b2' | 'c1'>('b2');
   const errorShownRef = useRef<string | null>(null);
   
   const {

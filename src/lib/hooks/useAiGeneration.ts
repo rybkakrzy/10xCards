@@ -3,7 +3,6 @@ import type {
   GenerateSuggestionsCommand,
   GenerateSuggestionsResponseDto,
   ImportFlashcardsCommand,
-  ImportFlashcardsResponseDto,
   AiSuggestionViewModel,
   AiSuggestion,
 } from '../../types';
@@ -126,7 +125,7 @@ export function useAiGeneration(): UseAiGenerationReturn {
         throw new Error(errorData.message || 'Nie udało się zaimportować fiszek');
       }
 
-      const data: ImportFlashcardsResponseDto = await response.json();
+      await response.json();
       
       // Clear suggestions after successful import
       setSuggestions([]);

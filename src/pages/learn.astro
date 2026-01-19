@@ -106,7 +106,7 @@ import MainLayout from '@/layouts/MainLayout.astro';
   let currentIndex = 0;
   let correctCount = 0;
   let incorrectCount = 0;
-  let showingAnswer = false;
+  // State managed in client-side
 
   const loading = document.getElementById('loading')!;
   const noFlashcards = document.getElementById('no-flashcards')!;
@@ -144,7 +144,7 @@ import MainLayout from '@/layouts/MainLayout.astro';
     }
 
     const card = flashcards[currentIndex];
-    showingAnswer = false;
+    // Reset answer visibility
 
     document.getElementById('front-text')!.textContent = card.front;
     document.getElementById('front-text-back')!.textContent = card.front;
@@ -159,7 +159,6 @@ import MainLayout from '@/layouts/MainLayout.astro';
   }
 
   function showAnswer() {
-    showingAnswer = true;
     cardFront.classList.add('hidden');
     cardBack.classList.remove('hidden');
     answerButtons.classList.remove('hidden');
@@ -193,7 +192,7 @@ import MainLayout from '@/layouts/MainLayout.astro';
 
   function updateProgress() {
     const total = flashcards.length;
-    const current = currentIndex + 1;
+    // Progress: card ${currentIndex + 1} of ${flashcards.length}
     const percentage = (currentIndex / total) * 100;
 
     document.getElementById('progress-text')!.textContent = `${currentIndex} / ${total}`;
