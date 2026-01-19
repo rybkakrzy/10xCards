@@ -505,6 +505,39 @@ export const GenerateSuggestionsResponseSchema = z.object({
 });
 
 // ============================================================================
+// Authentication Types
+// ============================================================================
+
+/**
+ * Form data for user registration.
+ * Represents the structure of data collected in the registration form.
+ */
+export type RegisterFormData = {
+  email: string;
+  password: string;
+};
+
+/**
+ * Validation errors for registration form fields.
+ * Maps field names to their corresponding error messages.
+ */
+export type RegisterFormErrors = {
+  email?: string;
+  password?: string;
+};
+
+/**
+ * Complete state of the registration form component.
+ * Manages form data, validation errors, loading state, and general errors.
+ */
+export type RegisterFormState = {
+  formData: RegisterFormData;
+  errors: RegisterFormErrors;
+  isLoading: boolean;
+  generalError: string | null;
+};
+
+// ============================================================================
 // OpenRouter Service Types
 // ============================================================================
 

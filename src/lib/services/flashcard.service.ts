@@ -1,4 +1,4 @@
-import type { SupabaseClient } from '../../db/supabase-client';
+import type { SupabaseClient } from '@/db/supabase-client';
 import type {
   CreateFlashcardCommand,
   CreatedFlashcardDto,
@@ -8,7 +8,7 @@ import type {
   ImportFlashcardsResponseDto,
   ListFlashcardsResponseDto,
   UpdateFlashcardCommand,
-} from '../../types';
+} from '@/types';
 
 export type GetFlashcardsOptions = {
   page: number;

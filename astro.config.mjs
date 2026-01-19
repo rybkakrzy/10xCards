@@ -5,6 +5,7 @@ import react from "@astrojs/react";
 import sitemap from "@astrojs/sitemap";
 import tailwindcss from "@tailwindcss/vite";
 import node from "@astrojs/node";
+import cloudflare from "@astrojs/cloudflare";
 import path from "path";
 
 // https://astro.build/config
@@ -20,7 +21,11 @@ export default defineConfig({
       },
     },
   },
-  adapter: node({
-    mode: "standalone",
-  }),
+  // Use Cloudflare adapter for production deployment to Cloudflare Pages
+  // For local development with Node.js, you can comment out cloudflare() and use node()
+  adapter: cloudflare(),
+  // Uncomment below to use Node.js adapter for alternative deployment
+  // adapter: node({
+  //   mode: "standalone",
+  // }),
 });

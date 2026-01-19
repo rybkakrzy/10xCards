@@ -1,34 +1,35 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from '@/db/database.types';
-import type { ReviewFlashcard } from '@/types';
-import { calculateNextReview } from '@/lib/leitner';
+import type { ReviewCardDto, UpdateCardReviewDto } from '@/types';
+import { z } from 'zod';
 
-export type GetReviewSessionOptions = {
-  userId: string;
-  limit?: number;
-};
+export const GetReviewSessionCommandSchema = z.object({
+  userId: z.string().uuid(),
+  limit: z.number().int().min(1).max(100).default(50),
+});
 
-export type UpdateCardReviewOptions = {
-  flashcardId: string;
+export type GetReviewSessionCommand = z.infer<typeof GetReviewSessionCommandSchema>;
+
+export interface UpdateCardReviewCommand extends UpdateCardReviewDto {
   userId: string;
-  knewIt: boolean;
-};
+}
 
 export class ReviewService {
   constructor(private supabase: SupabaseClient<Database>) {}
 
   /**
-   * Pobiera fiszki do powtórki dla danego użytkownika.
+   * Retrieves flashcards due for review for a given user.
+   *
+   * @param command - The command object containing the user ID and limit.
+   * @returns A promise that resolves to an array of review cards.
    */
-  async getReviewSessionCards(
-    options: GetReviewSessionOptions
-  ): Promise<ReviewFlashcard[]> {
-    const { userId, limit = 50 } = options;
+  async getReviewSessionCards(command: GetReviewSessionCommand): Promise<ReviewCardDto[]> {
+    const { userId, limit } = command;
     const now = new Date().toISOString();
 
     const { data: flashcards, error } = await this.supabase
       .from('flashcards')
-      .select('id, front, back, part_of_speech, leitner_box')
+      .select('id, front, back, part_of_speech')
       .eq('user_id', userId)
       .lte('review_due_at', now)
       .order('leitner_box', { ascending: true })
@@ -36,67 +37,38 @@ export class ReviewService {
       .limit(limit);
 
     if (error) {
+      // In a real app, you'd want to log this error to a monitoring service
       console.error('Error fetching review session cards:', error);
       throw new Error('Failed to retrieve review session cards from the database.');
     }
 
-    return (flashcards as ReviewFlashcard[]) || [];
+    return flashcards || [];
   }
 
   /**
-   * Aktualizuje status przeglądu fiszki.
-   * Jeśli funkcja RPC jest dostępna, używa jej. W przeciwnym razie używa lokalnej logiki powtórek.
+   * Updates the review status of a flashcard by calling the update_flashcard_review RPC function.
+   * This function handles the Leitner box progression logic and calculates the next review date.
+   *
+   * @param command - The command object containing flashcardId, knewIt, and userId.
+   * @throws Error if the flashcard is not found or doesn't belong to the user.
+   * @throws Error if the database operation fails.
    */
-  async updateCardReviewStatus(options: UpdateCardReviewOptions): Promise<void> {
-    const { flashcardId, userId, knewIt } = options;
+  async updateCardReviewStatus(command: UpdateCardReviewCommand): Promise<void> {
+    const { flashcardId, knewIt } = command;
 
-    // Sprawdź czy funkcja RPC istnieje, jeśli tak - użyj jej
-    try {
-      const { error: rpcError } = await this.supabase.rpc('update_flashcard_review', {
-        p_flashcard_id: flashcardId,
-        p_knew_it: knewIt,
-      });
+    const { error } = await this.supabase.rpc('update_flashcard_review', {
+      p_flashcard_id: flashcardId,
+      p_knew_it: knewIt,
+    });
 
-      if (!rpcError) {
-        return; // Sukces - funkcja RPC zadziałała
+    if (error) {
+      console.error('Error updating card review status:', error);
+
+      // Check if the error is due to the flashcard not being found or not belonging to the user
+      if (error.message?.includes('not found') || error.code === 'PGRST116') {
+        throw new Error('FLASHCARD_NOT_FOUND');
       }
 
-      // Jeśli funkcja RPC nie istnieje, spadamy do lokalnej logiki
-      console.warn('RPC function not available, using local review logic');
-    } catch (error) {
-      console.warn('RPC call failed, using local review logic:', error);
-    }
-
-    // Lokalna implementacja systemu powtórek
-    // Pobierz obecną fiszkę
-    const { data: flashcard, error: fetchError } = await this.supabase
-      .from('flashcards')
-      .select('leitner_box')
-      .eq('id', flashcardId)
-      .eq('user_id', userId)
-      .single();
-
-    if (fetchError || !flashcard) {
-      console.error('Error fetching flashcard:', fetchError);
-      throw new Error('FLASHCARD_NOT_FOUND');
-    }
-
-    // Oblicz następną datę przeglądu używając lokalnej funkcji
-    const currentBox = flashcard.leitner_box as 1 | 2 | 3 | 4 | 5;
-    const nextReview = calculateNextReview(currentBox, knewIt);
-
-    // Zaktualizuj fiszkę
-    const { error: updateError } = await this.supabase
-      .from('flashcards')
-      .update({
-        leitner_box: nextReview.leitner_box,
-        review_due_at: nextReview.review_due_at.toISOString(),
-      })
-      .eq('id', flashcardId)
-      .eq('user_id', userId);
-
-    if (updateError) {
-      console.error('Error updating card review status:', updateError);
       throw new Error('Failed to update card review status.');
     }
   }

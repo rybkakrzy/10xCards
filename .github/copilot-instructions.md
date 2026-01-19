@@ -53,3 +53,14 @@ When modifying the directory structure, always update this section.
 - Use guard clauses to handle preconditions and invalid states early.
 - Implement proper error logging and user-friendly error messages.
 - Consider using custom error types or error factories for consistent error handling.
+
+## Other Instructions
+
+For more specific guidelines, check the following instruction files:
+- Frontend & Styling: `.github/instructions/frontend.instructions.md`
+- React Components: `.github/instructions/react.instructions.md`
+- Astro Pages: `.github/instructions/astro.instructions.md`
+- Backend & API: `.github/instructions/backend.instructions.md`
+- Supabase: `.github/instructions/api-supabase-astro-init.instructions.md`
+- Database: `.github/instructions/db-supabase-migrations.instructions.md`
+- UI Components: `.github/instructions/ui-shadcn.instructions.md`

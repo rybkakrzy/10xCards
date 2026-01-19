@@ -76,6 +76,13 @@ export const UpdateCardReviewSchema = z.object({
 });
 
 /**
+ * Schema for validating the update card review request.
+ * Ensures that 'flashcardId' is a valid UUID and 'knewIt' is a boolean.
+ * @alias UpdateCardReviewSchema
+ */
+export const updateCardReviewSchema = UpdateCardReviewSchema;
+
+/**
  * Schema walidacji dla aktualizacji profilu użytkownika.
  * Umożliwia aktualizację domyślnego poziomu językowego używanego przy generowaniu fiszek AI.
  */
