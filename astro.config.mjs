@@ -3,7 +3,7 @@ import { defineConfig } from "astro/config";
 
 import react from "@astrojs/react";
 import sitemap from "@astrojs/sitemap";
-import tailwind from "@astrojs/tailwind";
+import tailwindcss from "@tailwindcss/vite";
 import node from "@astrojs/node";
 import cloudflare from "@astrojs/cloudflare";
 import path from "path";
@@ -11,15 +11,10 @@ import path from "path";
 // https://astro.build/config
 export default defineConfig({
   output: "server",
-  integrations: [
-    react(),
-    sitemap(),
-    tailwind({
-      applyBaseStyles: false,
-    }),
-  ],
+  integrations: [react(), sitemap()],
   server: { port: 3000 },
   vite: {
+    plugins: [tailwindcss()],
     resolve: {
       alias: {
         "@": path.resolve("./src"),
