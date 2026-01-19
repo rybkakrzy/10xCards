@@ -322,9 +322,8 @@ describe('flashcard.service', () => {
           { front: 'goodbye', back: 'do widzenia', part_of_speech: 'phrase' },
         ],
         metrics: {
-          input_language: 'English',
-          output_language: 'Polish',
-          requested_flashcards_count: 2,
+          generatedCount: 2,
+          importedCount: 2,
         },
       };
 
@@ -362,7 +361,10 @@ describe('flashcard.service', () => {
       // Arrange
       const importCommand = {
         flashcards: [{ front: 'test', back: 'test', part_of_speech: 'noun' }],
-        metrics: { input_language: 'en', output_language: 'pl', requested_flashcards_count: 1 },
+        metrics: {
+          generatedCount: 1,
+          importedCount: 0,
+        },
       };
 
       const mockSupabase = createMockSupabaseClient({
