@@ -59,10 +59,10 @@ import Layout from '@/layouts/Layout.astro';
       <div class="bg-white rounded-lg shadow-lg border-t-4 border-primary p-4 mb-6">
         <div class="flex flex-wrap gap-4">
           <select id="filter-box" class="px-3 py-2 border border-gray-300 rounded-md">
-            <option value="">Wszystkie pudełka</option>
-            <option value="1">Pudełko 1 (nowe)</option>
-            <option value="2">Pudełko 2 (w nauce)</option>
-            <option value="3">Pudełko 3 (opanowane)</option>
+            <option value="">Wszystkie poziomy</option>
+            <option value="1">Poziom 1 (nowe)</option>
+            <option value="2">Poziom 2 (w nauce)</option>
+            <option value="3">Poziom 3 (opanowane)</option>
           </select>
           <select id="filter-source" class="px-3 py-2 border border-gray-300 rounded-md">
             <option value="">Wszystkie źródła</option>
@@ -149,7 +149,7 @@ import Layout from '@/layouts/Layout.astro';
         <div class="bg-white rounded-lg shadow p-6 border-l-4 border-${boxColor}-500">
           <div class="flex justify-between items-start mb-3">
             <span class="text-xs px-2 py-1 rounded bg-${boxColor}-100 text-${boxColor}-800">
-              Pudełko ${card.leitner_box}
+              Poziom ${card.leitner_box}
             </span>
             <button 
               onclick="deleteFlashcard('${card.id}')"

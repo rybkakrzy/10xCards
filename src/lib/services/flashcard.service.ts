@@ -1,6 +1,14 @@
-import type { SupabaseClient } from '@supabase/supabase-js';
-import type { Database, TablesInsert, TablesUpdate } from '@/db/database.types';
-import type { Flashcard, CreateFlashcardRequest, UpdateFlashcardRequest } from '@/types';
+import type { SupabaseClient } from '../../db/supabase-client';
+import type {
+  CreateFlashcardCommand,
+  CreatedFlashcardDto,
+  FlashcardDetailDto,
+  FlashcardListItemDto,
+  ImportFlashcardsCommand,
+  ImportFlashcardsResponseDto,
+  ListFlashcardsResponseDto,
+  UpdateFlashcardCommand,
+} from '../../types';
 
 export type GetFlashcardsOptions = {
   page: number;
@@ -9,31 +17,17 @@ export type GetFlashcardsOptions = {
   order: 'asc' | 'desc';
 };
 
-export type PaginatedFlashcardsResponse = {
-  data: Flashcard[];
-  pagination: {
-    currentPage: number;
-    pageSize: number;
-    totalItems: number;
-    totalPages: number;
-  };
-};
-
-export class FlashcardService {
-  constructor(private supabase: SupabaseClient<Database>) {}
-
-  /**
-   * Pobiera listę fiszek użytkownika z paginacją i sortowaniem.
-   */
+export const flashcardService = {
   async getFlashcards(
+    supabase: SupabaseClient,
     userId: string,
     options: GetFlashcardsOptions
-  ): Promise<PaginatedFlashcardsResponse> {
+  ): Promise<ListFlashcardsResponseDto> {
     const { page, pageSize, sortBy, order } = options;
     const offset = (page - 1) * pageSize;
 
     // Policz wszystkie fiszki użytkownika
-    const { count, error: countError } = await this.supabase
+    const { count, error: countError } = await supabase
       .from('flashcards')
       .select('*', { count: 'exact', head: true })
       .eq('user_id', userId);
@@ -47,9 +41,9 @@ export class FlashcardService {
     const totalPages = Math.ceil(totalItems / pageSize);
 
     // Pobierz fiszki z paginacją
-    const { data: flashcards, error } = await this.supabase
+    const { data: flashcards, error } = await supabase
       .from('flashcards')
-      .select('*')
+      .select('id, front, back, part_of_speech, leitner_box, review_due_at, created_at')
       .eq('user_id', userId)
       .order(sortBy, { ascending: order === 'asc' })
       .range(offset, offset + pageSize - 1);
@@ -60,7 +54,7 @@ export class FlashcardService {
     }
 
     return {
-      data: flashcards as Flashcard[],
+      data: flashcards as FlashcardListItemDto[],
       pagination: {
         currentPage: page,
         pageSize,
@@ -68,195 +62,139 @@ export class FlashcardService {
         totalPages,
       },
     };
-  }
+  },
 
-  /**
-   * Tworzy nową fiszkę.
-   */
   async createFlashcard(
+    supabase: SupabaseClient,
     userId: string,
-    data: CreateFlashcardRequest
-  ): Promise<Flashcard> {
-    const { front, back, part_of_speech, ai_generated } = data;
+    data: CreateFlashcardCommand
+  ): Promise<CreatedFlashcardDto> {
+    const { front, back, part_of_speech } = data;
 
-    const insertData = {
-      user_id: userId,
-      front: front.trim(),
-      back: back.trim(),
-      part_of_speech: part_of_speech || null,
-      ai_generated: ai_generated || false,
-      leitner_box: 1,
-      review_due_at: new Date().toISOString(),
-    } as TablesInsert<'flashcards'>;
-
-    const { data: newFlashcard, error } = await this.supabase
+    const { data: newFlashcard, error } = await supabase
       .from('flashcards')
-      .insert(insertData)
-      .select()
+      .insert({
+        user_id: userId,
+        front,
+        back,
+        part_of_speech,
+        leitner_box: 1,
+        review_due_at: new Date().toISOString(),
+      })
+      .select('id, front, back, part_of_speech, leitner_box, review_due_at, created_at')
       .single();
 
     if (error) {
-      console.error('Error creating flashcard:', error);
+      console.error('Error creating flashcard in database:', error);
       throw new Error('Database operation failed.');
     }
 
-    return newFlashcard as Flashcard;
-  }
+    return newFlashcard;
+  },
 
-  /**
-   * Pobiera pojedynczą fiszkę po ID.
-   */
   async getFlashcardById(
-    flashcardId: string,
-    userId: string
-  ): Promise<Flashcard | null> {
-    const { data, error } = await this.supabase
-      .from('flashcards')
-      .select('*')
-      .eq('id', flashcardId)
-      .eq('user_id', userId)
-      .single();
+    supabase: SupabaseClient,
+    flashcardId: string
+  ): Promise<FlashcardDetailDto | null> {
+    const { data, error } = await supabase.from('flashcards').select('*').eq('id', flashcardId).single();
 
     if (error && error.code !== 'PGRST116') {
-      console.error('Error fetching flashcard:', error);
+      console.error('Error fetching flashcard from database:', error);
       throw new Error('Database operation failed.');
     }
 
-    return data as Flashcard | null;
-  }
+    return data;
+  },
+
+  async importAiFlashcards(
+    supabase: SupabaseClient,
+    userId: string,
+    command: ImportFlashcardsCommand,
+    languageLevel: string
+  ): Promise<ImportFlashcardsResponseDto> {
+    const { flashcards, metrics } = command;
+
+    // Call the import_ai_flashcards RPC function
+    // @ts-expect-error - This RPC function exists but is not yet in the generated types
+    const { data, error } = await supabase.rpc('import_ai_flashcards', {
+      flashcards_data: flashcards,
+      language_level_input: languageLevel,
+      metrics_data: metrics,
+      user_id_input: userId,
+    });
+
+    if (error) {
+      console.error('Error calling import_ai_flashcards RPC:', error);
+      throw new Error('Database transaction failed.');
+    }
+
+    return data as any as ImportFlashcardsResponseDto;
+  },
 
   /**
-   * Aktualizuje istniejącą fiszkę.
+   * Updates an existing flashcard for the authenticated user.
    * Uses RLS policies to ensure users can only update their own flashcards.
+   * 
+   * @param supabase - Supabase client instance
+   * @param flashcardId - UUID of the flashcard to update
+   * @param userId - ID of the authenticated user
+   * @param data - Partial update data for the flashcard
+   * @returns Updated flashcard or null if not found
+   * @throws Error if database operation fails
    */
   async updateFlashcard(
+    supabase: SupabaseClient,
     flashcardId: string,
     userId: string,
-    data: UpdateFlashcardRequest
-  ): Promise<Flashcard> {
-    const updateData: any = {};
-
-    if (data.front !== undefined) updateData.front = data.front.trim();
-    if (data.back !== undefined) updateData.back = data.back.trim();
-    if (data.part_of_speech !== undefined) updateData.part_of_speech = data.part_of_speech;
-
-    const { data: updatedFlashcard, error } = await this.supabase
+    data: UpdateFlashcardCommand
+  ): Promise<FlashcardDetailDto | null> {
+    const { data: updatedFlashcard, error } = await supabase
       .from('flashcards')
-      .update(updateData)
+      .update(data)
       .eq('id', flashcardId)
       .eq('user_id', userId)
-      .select()
+      .select('*')
       .single();
 
     if (error) {
-      console.error('Error updating flashcard:', error);
-      
-      // Check if flashcard doesn't exist or user doesn't have access
+      // PGRST116 is the error code for "no rows returned"
       if (error.code === 'PGRST116') {
-        throw new Error('Flashcard not found or access denied.');
+        return null;
       }
-      
+      console.error('Error updating flashcard in database:', error);
       throw new Error('Database operation failed.');
     }
 
-    if (!updatedFlashcard) {
-      throw new Error('Flashcard not found or access denied.');
-    }
-
-    return updatedFlashcard as Flashcard;
-  }
-      console.error('Error updating flashcard:', error);
-      if (error.code === 'PGRST116') {
-        throw new Error('FLASHCARD_NOT_FOUND');
-      }
-      throw new Error('Database operation failed.');
-    }
-
-    return updatedFlashcard as Flashcard;
-  }
+    return updatedFlashcard;
+  },
 
   /**
-   * Usuwa fiszkę.
+   * Deletes a flashcard for the authenticated user.
+   * Uses RLS policies to ensure users can only delete their own flashcards.
+   * 
+   * @param supabase - Supabase client instance
+   * @param flashcardId - UUID of the flashcard to delete
+   * @param userId - ID of the authenticated user
+   * @returns True if deleted, false if not found
+   * @throws Error if database operation fails
    */
-  async deleteFlashcard(flashcardId: string, userId: string): Promise<void> {
-    const { error } = await this.supabase
+  async deleteFlashcard(
+    supabase: SupabaseClient,
+    flashcardId: string,
+    userId: string
+  ): Promise<boolean> {
+    const { error } = await supabase
       .from('flashcards')
       .delete()
       .eq('id', flashcardId)
       .eq('user_id', userId);
 
     if (error) {
-      console.error('Error deleting flashcard:', error);
-      throw new Error('Database operation failed.');
-    }
-  }
-
-  /**
-   * Tworzy wiele fiszek naraz (bulk insert).
-   */
-  async bulkCreateFlashcards(
-    userId: string,
-    flashcards: CreateFlashcardRequest[]
-  ): Promise<{ count: number; flashcards: Flashcard[] }> {
-    const flashcardsToInsert: TablesInsert<'flashcards'>[] = flashcards.map((card) => ({
-      user_id: userId,
-      front: card.front.trim(),
-      back: card.back.trim(),
-      part_of_speech: card.part_of_speech || null,
-      ai_generated: card.ai_generated || false,
-      leitner_box: 1,
-      review_due_at: new Date().toISOString(),
-    }));
-
-    const { data, error } = await this.supabase
-      .from('flashcards')
-      .insert(flashcardsToInsert)
-      .select();
-
-    if (error) {
-      console.error('Error bulk creating flashcards:', error);
+      console.error('Error deleting flashcard in database:', error);
       throw new Error('Database operation failed.');
     }
 
-    return {
-      count: data.length,
-      flashcards: data as Flashcard[],
-    };
-  }
-
-  /**
-   * Imports AI-generated flashcards with metrics tracking.
-   */
-  async importAiFlashcards(
-    supabase: SupabaseClient<Database>,
-    userId: string,
-    command: { flashcards: Array<{ front: string; back: string; part_of_speech?: string | null }>; metrics: { generatedCount: number; importedCount: number } },
-    languageLevel: string
-  ): Promise<{ message: string; importedCount: number }> {
-    const flashcardsToInsert: TablesInsert<'flashcards'>[] = command.flashcards.map((card) => ({
-      user_id: userId,
-      front: card.front.trim(),
-      back: card.back.trim(),
-      part_of_speech: card.part_of_speech || null,
-      ai_generated: true,
-      leitner_box: 1,
-      review_due_at: new Date().toISOString(),
-    }));
-
-    const { data, error } = await supabase
-      .from('flashcards')
-      .insert(flashcardsToInsert)
-      .select();
-
-    if (error) {
-      console.error('Error importing AI flashcards:', error);
-      throw new Error('Failed to import flashcards');
-    }
-
-    return {
-      message: 'Flashcards imported successfully',
-      importedCount: data.length,
-    };
-  }
-}
+    return true;
+  },
+};
 

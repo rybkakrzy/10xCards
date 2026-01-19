@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { FlashcardService } from '../../../lib/services/flashcard.service';
+import { flashcardService } from '../../../lib/services/flashcard.service';
 import { GetFlashcardParamsSchema, UpdateFlashcardSchema } from '../../../lib/validators';
 import type { UpdateFlashcardRequest } from '../../../types';
 
@@ -14,8 +14,6 @@ export const GET: APIRoute = async ({ params, locals }) => {
   if (!user) {
     return new Response(JSON.stringify({ message: 'Unauthorized' }), { status: 401 });
   }
-
-  const flashcardService = new FlashcardService(supabase);
 
   // Validate flashcard ID from params
   const validation = GetFlashcardParamsSchema.safeParse(params);
@@ -32,7 +30,7 @@ export const GET: APIRoute = async ({ params, locals }) => {
   const { id: flashcardId } = validation.data;
 
   try {
-    const flashcard = await flashcardService.getFlashcardById(flashcardId, user.id);
+    const flashcard = await flashcardService.getFlashcardById(supabase, flashcardId);
 
     if (!flashcard) {
       return new Response(JSON.stringify({ message: 'Flashcard not found or access denied.' }), {
@@ -66,8 +64,6 @@ export const PATCH: APIRoute = async ({ params, request, locals }) => {
       headers: { 'Content-Type': 'application/json' }
     });
   }
-
-  const flashcardService = new FlashcardService(supabase);
 
   // Validate flashcard ID from URL params
   const paramsValidation = GetFlashcardParamsSchema.safeParse(params);
@@ -180,8 +176,6 @@ export const DELETE: APIRoute = async ({ params, locals }) => {
     });
   }
 
-  const flashcardService = new FlashcardService(supabase);
-
   // Validate flashcard ID from params
   const validation = GetFlashcardParamsSchema.safeParse(params);
   if (!validation.success) {
@@ -200,7 +194,7 @@ export const DELETE: APIRoute = async ({ params, locals }) => {
   const { id: flashcardId } = validation.data;
 
   try {
-    await flashcardService.deleteFlashcard(flashcardId, user.id);
+    await flashcardService.deleteFlashcard(supabase, flashcardId, user.id);
 
     return new Response(null, {
       status: 204,

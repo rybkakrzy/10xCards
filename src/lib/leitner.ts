@@ -1,4 +1,4 @@
-// Service for Leitner box algorithm operations
+// Service for spaced repetition algorithm operations
 import type { LeitnerBox } from '@/types';
 
 export const REVIEW_INTERVALS = {
@@ -16,7 +16,7 @@ export interface LeitnerUpdateResult {
 
 /**
  * Calculate next review date and box based on current box and result
- * @param currentBox Current Leitner box (1, 2, 3, 4, or 5)
+ * @param currentBox Current review box (1, 2, 3, 4, or 5)
  * @param isCorrect Whether the user answered correctly
  * @returns Updated box number and review date
  */
@@ -72,7 +72,7 @@ export function calculateNextReview(
       };
 
     default:
-      throw new Error(`Invalid Leitner box: ${currentBox}`);
+      throw new Error(`Invalid review box: ${currentBox}`);
   }
 }
 
@@ -114,7 +114,7 @@ export function formatReviewDate(reviewDueAt: string): string {
 
 /**
  * Get box color for UI display
- * @param box Leitner box number
+ * @param box Review box number
  * @returns Tailwind color class
  */
 export function getBoxColor(box: LeitnerBox): string {
@@ -132,17 +132,17 @@ export function getBoxColor(box: LeitnerBox): string {
 
 /**
  * Get box label for UI display
- * @param box Leitner box number
+ * @param box Review box number
  * @returns Human-readable box label
  */
 export function getBoxLabel(box: LeitnerBox): string {
   switch (box) {
     case 1:
-      return 'Pudełko 1 (Nowe)';
+      return 'Poziom 1 (Nowe)';
     case 2:
-      return 'Pudełko 2 (W trakcie)';
+      return 'Poziom 2 (W trakcie)';
     case 3:
-      return 'Pudełko 3 (Opanowane)';
+      return 'Poziom 3 (Opanowane)';
     default:
       return 'Nieznane';
   }

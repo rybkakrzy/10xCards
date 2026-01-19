@@ -45,7 +45,7 @@ export class ReviewService {
 
   /**
    * Aktualizuje status przeglądu fiszki.
-   * Jeśli funkcja RPC jest dostępna, używa jej. W przeciwnym razie używa lokalnej logiki Leitnera.
+   * Jeśli funkcja RPC jest dostępna, używa jej. W przeciwnym razie używa lokalnej logiki powtórek.
    */
   async updateCardReviewStatus(options: UpdateCardReviewOptions): Promise<void> {
     const { flashcardId, userId, knewIt } = options;
@@ -62,12 +62,12 @@ export class ReviewService {
       }
 
       // Jeśli funkcja RPC nie istnieje, spadamy do lokalnej logiki
-      console.warn('RPC function not available, using local Leitner logic');
+      console.warn('RPC function not available, using local review logic');
     } catch (error) {
-      console.warn('RPC call failed, using local Leitner logic:', error);
+      console.warn('RPC call failed, using local review logic:', error);
     }
 
-    // Lokalna implementacja systemu Leitnera
+    // Lokalna implementacja systemu powtórek
     // Pobierz obecną fiszkę
     const { data: flashcard, error: fetchError } = await this.supabase
       .from('flashcards')
